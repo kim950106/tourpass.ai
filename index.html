@@ -19,6 +19,9 @@ const TourPassApp = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [currentBanner, setCurrentBanner] = useState(0);
+  const [showSurvey, setShowSurvey] = useState(false);
+  const [surveyStep, setSurveyStep] = useState(0);
+  const [surveyAnswers, setSurveyAnswers] = useState({});
   
   const videoRef = useRef(null);
   const streamRef = useRef(null);
@@ -26,31 +29,43 @@ const TourPassApp = () => {
   const bannerAds = [
     {
       id: 1,
-      title: '🎄 크리스마스 특가',
-      subtitle: '12월 한정! 투어패스 30% 할인',
-      bgColor: 'from-red-500 to-green-600',
-      textColor: 'text-white'
+      title: '📊 만족도 조사',
+      subtitle: '투어패스 이용 후기를 들려주세요!',
+      bgColor: 'from-indigo-500 to-purple-600',
+      textColor: 'text-white',
+      type: 'survey'
     },
     {
       id: 2,
-      title: '🍕 맛집 투어',
-      subtitle: '서울 핫플레이스 맛집 특별가',
-      bgColor: 'from-orange-400 to-yellow-500',
-      textColor: 'text-white'
+      title: '🎄 크리스마스 특가',
+      subtitle: '12월 한정! 투어패스 30% 할인',
+      bgColor: 'from-red-500 to-green-600',
+      textColor: 'text-white',
+      type: 'promotion'
     },
     {
       id: 3,
-      title: '🎨 체험 프로그램',
-      subtitle: '전통공예 체험 + 기념품 증정',
-      bgColor: 'from-purple-500 to-pink-600',
-      textColor: 'text-white'
+      title: '🍕 맛집 투어',
+      subtitle: '서울 핫플레이스 맛집 특별가',
+      bgColor: 'from-orange-400 to-yellow-500',
+      textColor: 'text-white',
+      type: 'promotion'
     },
     {
       id: 4,
+      title: '🎨 체험 프로그램',
+      subtitle: '전통공예 체험 + 기념품 증정',
+      bgColor: 'from-purple-500 to-pink-600',
+      textColor: 'text-white',
+      type: 'promotion'
+    },
+    {
+      id: 5,
       title: '📱 앱 전용',
       subtitle: '모바일 예약시 추가 10% 할인',
       bgColor: 'from-blue-500 to-cyan-600',
-      textColor: 'text-white'
+      textColor: 'text-white',
+      type: 'promotion'
     }
   ];
 
@@ -84,6 +99,52 @@ const TourPassApp = () => {
       options: ['역사/문화재', '카페/맛집', '체험 활동', '쇼핑']
     }
   ];
+
+  const surveyQuestions = [
+    {
+      id: 'satisfaction',
+      question: '투어패스 서비스에 얼마나 만족하시나요?',
+      type: 'rating',
+      options: [
+        { value: 5, label: '매우 만족', emoji: '😍' },
+        { value: 4, label: '만족', emoji: '😊' },
+        { value: 3, label: '보통', emoji: '😐' },
+        { value: 2, label: '불만족', emoji: '😞' },
+        { value: 1, label: '매우 불만족', emoji: '😡' }
+      ]
+    },
+    {
+      id: 'recommendation',
+      question: '친구나 가족에게 추천하시겠어요?',
+      type: 'choice',
+      options: [
+        { value: 'yes', label: '네, 꼭 추천하겠어요' },
+        { value: 'maybe', label: '상황에 따라 추천할 것 같아요' },
+        { value: 'no', label: '추천하지 않을 것 같아요' }
+      ]
+    },
+    {
+      id: 'improvement',
+      question: '가장 개선이 필요한 부분은?',
+      type: 'choice',
+      options: [
+        { value: 'more_places', label: '더 많은 가맹점' },
+        { value: 'better_benefits', label: '더 나은 혜택' },
+        { value: 'easier_use', label: '사용법 개선' },
+        { value: 'customer_service', label: '고객서비스 개선' }
+      ]
+    }
+  ];
+
+  const handleBannerClick = (banner) => {
+    if (banner.type === 'survey') {
+      setShowSurvey(true);
+      setSurveyStep(0);
+    } else {
+      // 다른 배너들은 기존 동작
+      console.log('배너 클릭:', banner.title);
+    }
+  };
 
   const handleHidePopupToday = () => {
     setHidePopupToday(true);
@@ -387,8 +448,11 @@ const TourPassApp = () => {
                   <h3 className="font-bold text-lg mb-1">{banner.title}</h3>
                   <p className="text-sm opacity-90">{banner.subtitle}</p>
                 </div>
-                <button className="bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg text-sm hover:bg-white/30 transition-colors">
-                  자세히
+                <button 
+                  onClick={() => handleBannerClick(banner)}
+                  className="bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg text-sm hover:bg-white/30 transition-colors"
+                >
+                  {banner.type === 'survey' ? '참여하기' : '자세히'}
                 </button>
               </div>
             ))}
@@ -639,6 +703,127 @@ const TourPassApp = () => {
                 {t.confirm}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Survey Modal */}
+      {showSurvey && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-sm">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-bold">투어패스 만족도 조사</h3>
+              <button onClick={() => setShowSurvey(false)} className="p-1">
+                <X size={20} className="text-gray-600" />
+              </button>
+            </div>
+
+            {surveyStep < surveyQuestions.length ? (
+              <>
+                {/* Progress Bar */}
+                <div className="mb-6">
+                  <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
+                    <span>질문 {surveyStep + 1} / {surveyQuestions.length}</span>
+                    <span>{Math.round(((surveyStep + 1) / surveyQuestions.length) * 100)}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-indigo-500 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${((surveyStep + 1) / surveyQuestions.length) * 100}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="mb-6">
+                  <h4 className="font-medium mb-4 text-center">
+                    {surveyQuestions[surveyStep].question}
+                  </h4>
+                  
+                  <div className="space-y-3">
+                    {surveyQuestions[surveyStep].options.map((option, index) => (
+                      <button
+                        key={index}
+                        onClick={() => {
+                          const newAnswers = {
+                            ...surveyAnswers,
+                            [surveyQuestions[surveyStep].id]: option.value
+                          };
+                          setSurveyAnswers(newAnswers);
+                          
+                          if (surveyStep < surveyQuestions.length - 1) {
+                            setSurveyStep(surveyStep + 1);
+                          } else {
+                            // 설문 완료
+                            setSurveyStep(surveyQuestions.length);
+                          }
+                        }}
+                        className="w-full p-4 text-left border border-gray-200 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          {option.emoji && (
+                            <span className="text-2xl">{option.emoji}</span>
+                          )}
+                          <span className="font-medium">{option.label}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {surveyStep > 0 && (
+                  <button
+                    onClick={() => setSurveyStep(surveyStep - 1)}
+                    className="w-full py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  >
+                    이전 질문
+                  </button>
+                )}
+              </>
+            ) : (
+              /* 설문 완료 */
+              <div className="text-center py-8">
+                <div className="text-6xl mb-4">🎉</div>
+                <h3 className="text-xl font-bold mb-4">감사합니다!</h3>
+                <p className="text-gray-600 mb-6">
+                  소중한 의견을 주셔서 감사합니다.<br/>
+                  더 나은 서비스를 위해 활용하겠습니다.
+                </p>
+                
+                {/* 간단한 결과 표시 */}
+                <div className="bg-indigo-50 rounded-lg p-4 mb-6">
+                  <h4 className="font-medium mb-2">📊 설문 결과</h4>
+                  <div className="text-sm space-y-2">
+                    {surveyAnswers.satisfaction && (
+                      <div>만족도: {surveyAnswers.satisfaction}/5</div>
+                    )}
+                    {surveyAnswers.recommendation && (
+                      <div>추천 의향: {
+                        surveyAnswers.recommendation === 'yes' ? '적극 추천' :
+                        surveyAnswers.recommendation === 'maybe' ? '조건부 추천' : '비추천'
+                      }</div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      setSurveyStep(0);
+                      setSurveyAnswers({});
+                    }}
+                    className="flex-1 py-3 text-indigo-600 border border-indigo-300 rounded-lg hover:bg-indigo-50"
+                  >
+                    다시 참여하기
+                  </button>
+                  <button
+                    onClick={() => setShowSurvey(false)}
+                    className="flex-1 py-3 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600"
+                  >
+                    완료
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
