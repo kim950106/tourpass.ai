@@ -3,64 +3,158 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Tourpass AI 챗봇</title>
+  <title>Tourpass AI 어시스턴트</title>
 
+  <!-- Pretendard -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
     :root{
-      --ink:#0f172a; --muted:#64748b; --line:#e2e8f0; --bg:#ffffff;
-      --panel:#f8fafc; --brand:#5b46ff; --ok:#10b981; --shadow:0 10px 40px rgba(2,6,23,.08);
+      --ink:#0f172a;
+      --muted:#64748b;
+      --line:#e2e8f0;
+      --bg:#ffffff;
+      --panel:#f8fafc;
+      --brand:#5b46ff;
+      --ok:#10b981;
+      --shadow:0 10px 40px rgba(2,6,23,.08);
     }
-    *{box-sizing:border-box} html,body{height:100%}
+    *{box-sizing:border-box}
+    html,body{height:100%}
     body{
-      margin:0; font-family:'Pretendard',system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+      margin:0;
+      font-family:'Pretendard',system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
       color:var(--ink);
       background:
         radial-gradient(1200px 600px at 10% -10%, #eef2ff 0%, transparent 60%),
-        radial-gradient(900px 500px at 90% 110%, #fdf2f8 0%, transparent 60%), #fff;
-      display:flex; align-items:center; justify-content:center; padding:24px;
+        radial-gradient(900px 500px at 90% 110%, #fdf2f8 0%, transparent 60%),
+        #fff;
+      display:flex; align-items:center; justify-content:center;
+      padding:24px;
     }
-    .app{ width:min(880px,96vw); background:#fff; border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow); overflow:hidden; }
-    .header{ padding:20px 24px; border-bottom:1px solid var(--line); text-align:center; background:linear-gradient(180deg,#fff,#fbfbff) }
-    .brand{ font-weight:800; font-size:clamp(22px,3.6vw,28px); margin-bottom:4px }
-    .sub{ color:var(--muted); font-size:14px }
-    .main{ padding:26px 24px }
-    .title{ font-weight:800; font-size:clamp(22px,3.6vw,30px); text-align:center; margin:0 0 22px }
-    .askbar{ position:relative; display:flex; align-items:center; gap:10px; padding:14px 18px; border-radius:999px; border:1px solid var(--line); background:#fff; box-shadow:var(--shadow); transition:.2s }
-    .askbar:focus-within{ outline:2px solid color-mix(in oklab,var(--brand) 35%,white); outline-offset:2px }
-    .input{ flex:1; border:none; outline:none; font-size:16px; color:var(--ink) }
-    .input::placeholder{ color:var(--muted) }
-    .btn{ width:38px; height:38px; border:none; background:#fff; border-radius:50%; display:grid; place-items:center; cursor:pointer; border:1px solid var(--line); transition:.15s }
-    .btn:hover{ background:#f9f9ff } .btn:active{ transform:translateY(1px) }
-    .btn[data-on="true"]{ border-color:color-mix(in oklab,var(--ok) 60%,var(--line)); box-shadow:0 0 0 4px color-mix(in oklab,var(--ok) 18%,white) }
-    .hint{ margin-top:14px; text-align:center; font-size:13px; color:var(--muted) }
-    .result{ margin-top:24px; display:none; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px }
-    .res-head{ display:flex; align-items:center; gap:8px; font-weight:700; margin-bottom:8px }
-    .loader{ width:16px; height:16px; border-radius:50%; border:2px solid var(--brand); border-top-color:transparent; animation:spin 1s linear infinite }
+
+    /* ====== 카드 ====== */
+    .app{
+      width:min(920px, 96vw);
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:18px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .header{
+      padding:22px 24px;
+      border-bottom:1px solid var(--line);
+      text-align:center;
+      background:linear-gradient(180deg, #ffffff, #fbfbff);
+    }
+    .brand{ font-weight:800; font-size:clamp(22px, 3.6vw, 28px); }
+    .sub{ color:var(--muted); font-size:14px; margin-top:6px }
+
+    .main{ padding:26px 24px; }
+    .title{
+      font-weight:800;
+      font-size:clamp(22px, 3.6vw, 30px);
+      text-align:center;
+      margin:0 0 22px;
+    }
+
+    /* ====== 입력 바 ====== */
+    .askbar{
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:14px 18px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      box-shadow:var(--shadow);
+      transition:all .2s ease;
+    }
+    .askbar:focus-within{
+      outline:2px solid color-mix(in oklab, var(--brand) 35%, white);
+      outline-offset:2px;
+    }
+    .input{
+      flex:1;
+      border:none; outline:none;
+      font-size:16px; color:var(--ink);
+      background:transparent;
+    }
+    .input::placeholder{ color:var(--muted); }
+
+    .btn{
+      width:38px; height:38px;
+      border:none; background:#fff;
+      border-radius:50%;
+      display:grid; place-items:center;
+      cursor:pointer; border:1px solid var(--line);
+      transition:all .15s ease;
+    }
+    .btn:hover{ background:#f9f9ff }
+    .btn:active{ transform:translateY(1px) }
+    .btn[disabled]{ opacity:.6; cursor:not-allowed }
+    .btn[data-on="true"]{
+      border-color:color-mix(in oklab, var(--ok) 60%, var(--line));
+      box-shadow:0 0 0 4px color-mix(in oklab, var(--ok) 18%, white);
+    }
+
+    .hint{ margin-top:12px; text-align:center; font-size:13px; color:var(--muted); }
+
+    /* ====== 결과 ====== */
+    .result{
+      margin-top:22px;
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:18px;
+      display:none;
+    }
+    .res-head{ display:flex; align-items:center; gap:8px; font-weight:700; margin-bottom:10px; }
+    .loader{ width:16px; height:16px; border-radius:50%; border:2px solid var(--brand); border-top-color:transparent; animation:spin 1s linear infinite; }
     @keyframes spin{to{transform:rotate(360deg)}}
-    .answer{ background:#fff; border:1px solid var(--line); border-radius:12px; padding:16px; line-height:1.7; font-size:15px }
-    .wave{display:inline-flex; gap:2px; align-items:end}
-    .wave span{ width:3px; height:10px; background:var(--brand); border-radius:2px; animation:wv 1s ease-in-out infinite }
-    .wave span:nth-child(2){ animation-delay:.1s } .wave span:nth-child(3){ animation-delay:.2s }
-    @keyframes wv{ 0%,100%{height:6px} 50%{height:14px} }
-    @media (max-width:520px){ .main{padding:18px} .askbar{padding:12px 14px} }
+    .answer{
+      background:#fff; border:1px solid var(--line); border-radius:12px;
+      padding:16px; line-height:1.7; font-size:15px;
+    }
+    .recs{ margin-top:12px; background:#fff; border:1px dashed var(--line); border-radius:10px; padding:12px }
+    .recs h4{ margin:0 0 8px; font-size:14px }
+    .recs ol{ margin:0; padding-left:18px }
+
+    /* 옵션 바(디버그, 라스트ID 저장) */
+    .opts{
+      margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; color:var(--muted); font-size:13px
+    }
+    .opts input[type="text"]{
+      height:34px; border:1px solid var(--line); border-radius:10px; padding:0 10px; outline:none;
+    }
+    .opts label{ display:flex; gap:6px; align-items:center; }
+
+    @media (max-width:520px){
+      .main{ padding:18px }
+      .askbar{ padding:12px 14px }
+      .opts{ flex-direction:column; align-items:flex-start }
+    }
   </style>
 </head>
 <body>
   <div class="app">
+    <!-- 헤더 -->
     <header class="header">
       <div class="brand">Tourpass AI 어시스턴트</div>
       <div class="sub">Google Sheets + OpenAI로 만드는 지능형 비서</div>
     </header>
 
+    <!-- 메인 -->
     <main class="main">
       <h1 class="title">투어패스 워크숍에 대해 궁금하세요?</h1>
 
-      <div class="askbar" role="search">
-        <input id="q" class="input" placeholder="예) 워크숍 일정 알려줘" autocomplete="off" />
+      <!-- 입력 바 -->
+      <div class="askbar" role="search" aria-label="질문 입력창">
+        <input id="q" class="input" placeholder="예) 2일차 세부 일정 보여줘" autocomplete="off" />
         <button id="mic" class="btn" title="음성 입력" aria-label="음성 입력">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
             <path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3Z" stroke="currentColor" stroke-width="1.5"/>
@@ -69,96 +163,169 @@
           </svg>
         </button>
         <button id="send" class="btn" title="질문 보내기 (Enter)" aria-label="질문 보내기">
-          <div class="wave" aria-hidden><span></span><span></span><span></span></div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+            <path d="M4 12l16-8-7 8 7 8-16-8z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+          </svg>
         </button>
       </div>
-      <p class="hint">무엇이든 물어보세요.</p>
+      <p class="hint">Enter 전송 · 마이크로 말하기 · 백엔드는 Google Apps Script 웹앱</p>
 
+      <!-- 옵션 -->
+      <div class="opts">
+        <label><input type="checkbox" id="dbg"> 디버그 메타 출력(콘솔)</label>
+        <label>최근 가맹점ID
+          <input type="text" id="lastId" placeholder="예: P1234 (선택)" />
+        </label>
+        <button id="saveId" class="btn" title="최근ID 저장" aria-label="최근ID 저장">💾</button>
+        <span id="savedNote" aria-live="polite"></span>
+      </div>
+
+      <!-- 결과 -->
       <section id="result" class="result" aria-live="polite" aria-busy="false">
         <div class="res-head">
           <div id="busy" class="loader" hidden></div>
           <div>GPT 분석 결과</div>
         </div>
         <div id="answer" class="answer"></div>
+        <div id="recs" class="recs" style="display:none">
+          <h4>다음 가맹점 추천 (Top3)</h4>
+          <ol id="recList"></ol>
+        </div>
       </section>
     </main>
   </div>
 
   <script>
-    const $q = document.getElementById('q');
-    const $result = document.getElementById('result');
-    const $answer = document.getElementById('answer');
-    const $busy = document.getElementById('busy');
-    const $send = document.getElementById('send');
-    const $mic = document.getElementById('mic');
-
-    // ✅ GAS 웹앱 URL
+    /* =================== 설정 =================== */
+    // 1) 본인 GAS 웹앱 URL로 교체
     const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxM8pNBBnAxRyoIYHO8be82IzlTCPYOcRRjq_aoiTvcyoprVNhfXQx_KsZlVSVGJlhn/exec';
-    // (선택) 서버에서 BACKEND_TOKEN을 요구하면 여기에 동일 값 지정
-    const BACKEND_TOKEN = '';
+    // 2) 백엔드에서 BACKEND_TOKEN을 쓰는 경우만 입력
+    const BACKEND_TOKEN = ''; // 예: 'my-secret-token'
 
+    /* ============== 엘리먼트 ============== */
+    const $q       = document.getElementById('q');
+    const $result  = document.getElementById('result');
+    const $answer  = document.getElementById('answer');
+    const $busy    = document.getElementById('busy');
+    const $send    = document.getElementById('send');
+    const $mic     = document.getElementById('mic');
+    const $dbg     = document.getElementById('dbg');
+    const $lastId  = document.getElementById('lastId');
+    const $saveId  = document.getElementById('saveId');
+    const $recs    = document.getElementById('recs');
+    const $recList = document.getElementById('recList');
+    const $savedNote = document.getElementById('savedNote');
+
+    // 초기: localStorage에서 last_place_id 불러오기
+    $lastId.value = localStorage.getItem('tourpass:last_place_id') || '';
+
+    /* ============== 전송 ============== */
     async function ask() {
       const text = $q.value.trim();
-      if (!text) return alert('질문을 입력하세요.');
+      if (!text) { alert('질문을 입력해주세요.'); return; }
 
       toggleBusy(true);
       try {
-        // ★ 프리플라이트 방지: application/json 대신 text/plain
+        const reqBody = {
+          query: text,
+          last_place_id: $lastId.value.trim() || undefined,
+          token: BACKEND_TOKEN || undefined,
+          debug: $dbg.checked || undefined
+        };
+
         const res = await fetch(WEBAPP_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ query: text, token: BACKEND_TOKEN || undefined })
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(reqBody)
         });
 
-        // GAS는 종종 200만 내려줘서, 본문에서 에러를 판단
-        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error('응답 오류: ' + res.status);
+        const data = await res.json();
 
-        $result.style.display = 'block';
-        if (!res.ok || data.error) {
-          $answer.innerHTML = `<span style="color:#ef4444">오류: ${escapeHtml(data.error || ('HTTP '+res.status))}</span>`;
-        } else {
-          $answer.innerHTML = (data.answer || '응답이 없습니다.').replace(/\n/g,'<br/>');
-          if (Array.isArray(data.recs) && data.recs.length) {
-            const list = data.recs.map(r=>`<li>${escapeHtml(r.name)} <small>[${escapeHtml(r.place_id)}] · 점수:${escapeHtml(String(r.score))}</small></li>`).join('');
-            $answer.insertAdjacentHTML('beforeend', `<hr style="margin:12px 0; opacity:.3;"><div style="font-weight:700; margin-bottom:6px;">다음 가맹점 추천 (Top3)</div><ol style="margin:0; padding-left:18px">${list}</ol>`);
-          }
+        // 디버그 메타 콘솔 출력
+        if ($dbg.checked && data.meta) {
+          console.log('[BACKEND META]', data.meta);
         }
+        console.log('[BACKEND SOURCE]', data.source || '(미표기)');
+
+        // 결과 렌더
+        $result.style.display = 'block';
+        if (data.error) {
+          $answer.innerHTML = `<span style="color:#ef4444">${escapeHtml(data.error)}</span>`;
+        } else {
+          const text = (data.answer || '(확인 필요) 응답 없음');
+          $answer.innerHTML = escapeHtml(text).replace(/\n/g,'<br/>');
+        }
+
+        // 추천 표시
+        if (Array.isArray(data.recs) && data.recs.length) {
+          $recs.style.display = 'block';
+          $recList.innerHTML = data.recs.map(r =>
+            `<li>${escapeHtml(r.name)} <small>[${escapeHtml(r.place_id)}] · 점수:${escapeHtml(String(r.score))}</small></li>`
+          ).join('');
+        } else {
+          $recs.style.display = 'none';
+          $recList.innerHTML = '';
+        }
+
       } catch (e) {
         console.error(e);
         $result.style.display = 'block';
-        $answer.innerHTML = '<span style="color:#ef4444">네트워크 오류 또는 CORS 문제입니다.</span>';
+        $answer.innerHTML = '<span style="color:#ef4444">오류 발생: 웹앱 URL/권한/스크립트 속성(OPENAI_API_KEY)을 확인하세요.</span>';
+        $recs.style.display = 'none';
+        $recList.innerHTML = '';
       } finally {
         toggleBusy(false);
       }
     }
 
-    function toggleBusy(b){
+    function toggleBusy(b) {
       $busy.hidden = !b;
       $result.setAttribute('aria-busy', b ? 'true' : 'false');
-      $send.disabled = b; $q.disabled = b;
+      $send.disabled = b;
+      $q.disabled    = b;
+      $mic.disabled  = b;
     }
-    $send.addEventListener('click', ask);
-    $q.addEventListener('keydown', e => { if (e.key === 'Enter') ask(); });
 
-    // 음성 입력
+    /* ============== 이벤트 ============== */
+    $send.addEventListener('click', ask);
+    $q.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ ask(); }});
+
+    $saveId.addEventListener('click', ()=>{
+      const v = $lastId.value.trim();
+      if (v) {
+        localStorage.setItem('tourpass:last_place_id', v);
+        $savedNote.textContent = '저장됨';
+      } else {
+        localStorage.removeItem('tourpass:last_place_id');
+        $savedNote.textContent = '삭제됨';
+      }
+      setTimeout(()=> $savedNote.textContent='', 1200);
+    });
+
+    /* ============== 음성 입력(Web Speech API) ============== */
     let rec;
     if ('webkitSpeechRecognition' in window) {
       rec = new webkitSpeechRecognition();
-      rec.lang = 'ko-KR'; rec.interimResults = false; rec.maxAlternatives = 1;
-      rec.onresult = ev => { $q.value = ev.results[0][0].transcript; ask(); };
-      rec.onerror = () => toggleMic(false);
+      rec.lang = 'ko-KR';
+      rec.interimResults = false; rec.maxAlternatives = 1;
+      rec.onresult = (ev)=>{ const t = ev.results[0][0].transcript; $q.value = t; ask(); };
+      rec.onerror = ()=> toggleMic(false);
     }
     function toggleMic(forceOff){
-      if (!rec) return alert('음성 인식을 지원하지 않습니다.');
+      if (!rec) { alert('이 브라우저는 음성 인식을 지원하지 않아요.'); return; }
       const on = $mic.dataset.on === 'true';
       const next = forceOff ? false : !on;
       $mic.dataset.on = String(next);
       if (next) rec.start(); else rec.stop();
     }
-    $mic.addEventListener('click', () => toggleMic());
+    $mic.addEventListener('click', ()=> toggleMic());
 
+    /* ============== 유틸 ============== */
     function escapeHtml(str){
-      return String(str).replace(/[&<>"']/g, s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+      return String(str).replace(/[&<>"']/g, s=>({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      })[s]);
     }
   </script>
 </body>
