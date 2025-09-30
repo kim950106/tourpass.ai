@@ -2,496 +2,164 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>MBTI 관계도 | LS TourPass</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tourpass AI 챗봇</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <style>
     :root{
-      --brand-start:#5b7cfa; --brand-end:#7a53c8; --ink:#0f172a; --ink-2:#334155; --muted:#64748b;
-      --bg:#ffffff; --panel:#f8fafc; --line:#e2e8f0; --ok:#10b981; --warn:#f59e0b; --bad:#ef4444; --chip:#eef2ff;
+      --ink:#0f172a; --muted:#64748b; --line:#e2e8f0; --bg:#ffffff;
+      --panel:#f8fafc; --brand:#5b46ff; --ok:#10b981; --shadow:0 10px 40px rgba(2,6,23,.08);
     }
-    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-    html,body{height:100%}
-    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
-      background:linear-gradient(135deg,var(--brand-start),var(--brand-end)); color:var(--ink); overflow:hidden}
-    .app{display:flex;flex-direction:column;height:100%;max-width:820px;margin:0 auto;background:var(--bg);
-      border-radius:18px; box-shadow:0 14px 36px rgba(0,0,0,.16)}
-    .header{background:linear-gradient(135deg,var(--brand-start),var(--brand-end)); color:#fff;
-      padding:16px 14px;display:flex;align-items:center;justify-content:space-between}
-    .title{font-weight:800;font-size:18px;letter-spacing:.2px;display:flex;gap:8px;align-items:center}
-    .controls{background:var(--panel);border-bottom:1px solid var(--line);padding:12px}
-    .row{display:flex;gap:8px;flex-wrap:wrap}
-    .row+.row{margin-top:8px}
-    .btn{appearance:none;border:0;border-radius:12px;padding:10px 12px;font-weight:800;cursor:pointer}
-    .btn-primary{background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;flex:1;min-width:160px}
-    .btn-outline{background:#fff;border:2px solid var(--brand-start);color:var(--brand-start);font-weight:800}
-    .input,select{flex:1;min-width:140px;background:#fff;border:2px solid var(--line);border-radius:12px;padding:10px 12px;font-size:14px}
-    .chip{background:var(--chip);padding:6px 10px;border-radius:999px;font-size:12px;color:#3730a3;font-weight:800}
-
-    .viz-wrap{position:relative;flex:1;min-height:420px;overflow:hidden;background:linear-gradient(135deg,#fff6fb,#eef7ff)}
-    #stage{position:absolute;inset:0}
-    .legend{display:flex;gap:12px;flex-wrap:wrap;padding:8px 12px;border-top:1px solid var(--line);background:#fff}
-    .legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2)}
-    .legend-dot{width:18px;height:4px;border-radius:4px;display:inline-block}
-    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:10px 12px;background:#fff;border-top:1px solid var(--line)}
-    .stat{background:linear-gradient(180deg,#f6f7fb,#eaeef7);border-radius:12px;padding:10px;text-align:center}
-    .stat .v{font-weight:900}
-    .stat .k{font-size:11px;color:var(--muted)}
-    .sheetbox{display:grid;grid-template-columns:1.2fr 1fr;gap:8px}
-    .mebox{background:#eef6ff;border:1px solid #c7dbff;border-radius:12px;padding:8px}
-    .gridbox{background:#f0fff7;border:1px solid #c8f3dd;border-radius:12px;padding:8px}
-    .label{font-size:12px;color:#1e40af;font-weight:900;margin-bottom:6px;display:flex;align-items:center;gap:6px}
-    .helper{font-size:12px;color:var(--muted)}
-    .bottomsheet{position:fixed;left:0;right:0;bottom:-100%;background:#fff;border-top-left-radius:16px;border-top-right-radius:16px;
-      box-shadow:0 -10px 30px rgba(0,0,0,.18);padding:16px;transition:bottom .25s ease;z-index:50;max-width:820px;margin:0 auto}
-    .bottomsheet.show{bottom:0}
-    .sheet-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-    .sheet-title{font-weight:900}
-    .x{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;border:1px solid var(--line);background:#fff;cursor:pointer}
-    .searchrow{display:flex;gap:8px;margin-top:8px}
-    @media (max-width:480px){.sheetbox{grid-template-columns:1fr}}
-
-    /* 표 뷰 스타일 */
-    .table-view{position:absolute;inset:0;overflow:auto;padding:16px;display:none}
-    .table-card{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 18px rgba(0,0,0,.07)}
-    .table-title{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
-    .table-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--line)}
-    .table-col{border-right:1px solid var(--line)}
-    .table-col:last-child{border-right:0}
-    .col-head{background:#f8fafc;padding:10px 12px;font-weight:900;font-size:13px;position:sticky;top:0;z-index:1}
-    .col-body{padding:8px 12px;display:flex;flex-direction:column;gap:8px}
-    .pill{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:12px;border:1px solid var(--line);background:#fff}
-    .pill .mbti{font-weight:900}
-    .muted{color:#94a3b8;font-size:13px;padding:16px;text-align:center}
-    @media (max-width:700px){.table-grid{grid-template-columns:1fr}.col-head{position:relative}}
+    *{box-sizing:border-box} html,body{height:100%}
+    body{
+      margin:0; font-family:'Pretendard',system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, #eef2ff 0%, transparent 60%),
+        radial-gradient(900px 500px at 90% 110%, #fdf2f8 0%, transparent 60%), #fff;
+      display:flex; align-items:center; justify-content:center; padding:24px;
+    }
+    .app{ width:min(880px,96vw); background:#fff; border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow); overflow:hidden; }
+    .header{ padding:20px 24px; border-bottom:1px solid var(--line); text-align:center; background:linear-gradient(180deg,#fff,#fbfbff) }
+    .brand{ font-weight:800; font-size:clamp(22px,3.6vw,28px); margin-bottom:4px }
+    .sub{ color:var(--muted); font-size:14px }
+    .main{ padding:26px 24px }
+    .title{ font-weight:800; font-size:clamp(22px,3.6vw,30px); text-align:center; margin:0 0 22px }
+    .askbar{ position:relative; display:flex; align-items:center; gap:10px; padding:14px 18px; border-radius:999px; border:1px solid var(--line); background:#fff; box-shadow:var(--shadow); transition:.2s }
+    .askbar:focus-within{ outline:2px solid color-mix(in oklab,var(--brand) 35%,white); outline-offset:2px }
+    .input{ flex:1; border:none; outline:none; font-size:16px; color:var(--ink) }
+    .input::placeholder{ color:var(--muted) }
+    .btn{ width:38px; height:38px; border:none; background:#fff; border-radius:50%; display:grid; place-items:center; cursor:pointer; border:1px solid var(--line); transition:.15s }
+    .btn:hover{ background:#f9f9ff } .btn:active{ transform:translateY(1px) }
+    .btn[data-on="true"]{ border-color:color-mix(in oklab,var(--ok) 60%,var(--line)); box-shadow:0 0 0 4px color-mix(in oklab,var(--ok) 18%,white) }
+    .hint{ margin-top:14px; text-align:center; font-size:13px; color:var(--muted) }
+    .result{ margin-top:24px; display:none; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px }
+    .res-head{ display:flex; align-items:center; gap:8px; font-weight:700; margin-bottom:8px }
+    .loader{ width:16px; height:16px; border-radius:50%; border:2px solid var(--brand); border-top-color:transparent; animation:spin 1s linear infinite }
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .answer{ background:#fff; border:1px solid var(--line); border-radius:12px; padding:16px; line-height:1.7; font-size:15px }
+    .wave{display:inline-flex; gap:2px; align-items:end}
+    .wave span{ width:3px; height:10px; background:var(--brand); border-radius:2px; animation:wv 1s ease-in-out infinite }
+    .wave span:nth-child(2){ animation-delay:.1s } .wave span:nth-child(3){ animation-delay:.2s }
+    @keyframes wv{ 0%,100%{height:6px} 50%{height:14px} }
+    @media (max-width:520px){ .main{padding:18px} .askbar{padding:12px 14px} }
   </style>
 </head>
 <body>
   <div class="app">
-    <div class="header">
-      <div class="title">🌟 MBTI 관계도</div>
-    </div>
+    <header class="header">
+      <div class="brand">Tourpass AI 어시스턴트</div>
+      <div class="sub">Google Sheets + OpenAI로 만드는 지능형 비서</div>
+    </header>
 
-    <div class="controls">
-      <div class="row">
-        <button id="btn-load" class="btn btn-primary">👥 관계도 불러오기</button>
-        <button id="btn-reset" class="btn btn-outline">초기화</button>
+    <main class="main">
+      <h1 class="title">투어패스 워크숍에 대해 궁금하세요?</h1>
+
+      <div class="askbar" role="search">
+        <input id="q" class="input" placeholder="예) 워크숍 일정 알려줘" autocomplete="off" />
+        <button id="mic" class="btn" title="음성 입력" aria-label="음성 입력">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+            <path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3Z" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M19 11a7 7 0 0 1-14 0" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M12 18v3" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+        </button>
+        <button id="send" class="btn" title="질문 보내기 (Enter)" aria-label="질문 보내기">
+          <div class="wave" aria-hidden><span></span><span></span><span></span></div>
+        </button>
       </div>
+      <p class="hint">무엇이든 물어보세요.</p>
 
-      <div class="searchrow">
-        <input id="q" class="input" placeholder="🔎 이름 또는 MBTI(예: ENFP) 검색" />
-        <select id="filterMbti">
-          <option value="">MBTI 필터</option>
-          <option>INTJ</option><option>INTP</option><option>ENTJ</option><option>ENTP</option>
-          <option>INFJ</option><option>INFP</option><option>ENFJ</option><option>ENFP</option>
-          <option>ISTJ</option><option>ISFJ</option><option>ESTJ</option><option>ESFJ</option>
-          <option>ISTP</option><option>ISFP</option><option>ESTP</option><option>ESFP</option>
-        </select>
-      </div>
-
-      <div class="row sheetbox">
-        <div class="mebox">
-          <div class="label">📍 내 위치 추가</div>
-          <div class="row">
-            <input id="myName" class="input" placeholder="내 이름(선택)" />
-            <select id="myMbti" class="input">
-              <option value="">내 MBTI 선택</option>
-              <option>INTJ</option><option>INTP</option><option>ENTJ</option><option>ENTP</option>
-              <option>INFJ</option><option>INFP</option><option>ENFJ</option><option>ENFP</option>
-              <option>ISTJ</option><option>ISFJ</option><option>ESTJ</option><option>ESFJ</option>
-              <option>ISTP</option><option>ISFP</option><option>ESTP</option><option>ESFP</option>
-            </select>
-          </div>
-          <div class="row">
-            <button id="btn-me" class="btn btn-primary">🔗 MBTI 관계 보기</button>
-          </div>
-          <div class="helper">* 내 MBTI를 선택하면 나와 팀원 간 ‘최고/도전적’ 궁합을 바로 확인합니다. (표 보기 전환)</div>
+      <section id="result" class="result" aria-live="polite" aria-busy="false">
+        <div class="res-head">
+          <div id="busy" class="loader" hidden></div>
+          <div>GPT 분석 결과</div>
         </div>
-
-        <div class="gridbox">
-          <div class="label">🧹 데이터 정제</div>
-          <div class="row">
-            <span class="chip" id="chip-dup">중복 자동 제거</span>
-            <span class="chip" id="chip-trim">대소문자·공백 정리</span>
-          </div>
-          <div class="helper">* 같은 이름+MBTI가 여러 번 있으면 1개만 유지합니다.</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="viz-wrap">
-      <svg id="wires" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0"></svg>
-      <div id="stage" aria-live="polite"></div>
-      <div id="tableView" class="table-view"></div>
-    </div>
-
-    <div class="legend">
-      <div class="legend-item"><span class="legend-dot" style="background:#22c55e"></span>최고</div>
-      <div class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span>좋음</div>
-      <div class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span>보통</div>
-      <div class="legend-item"><span class="legend-dot" style="background:#ef4444"></span>도전적</div>
-    </div>
-
-    <div class="stats">
-      <div class="stat"><div class="v" id="totalCount">0</div><div class="k">총 인원</div></div>
-      <div class="stat"><div class="v" id="excellentCount">-</div><div class="k">최고 궁합</div></div>
-      <div class="stat"><div class="v" id="challengingCount">-</div><div class="k">도전적</div></div>
-    </div>
-
-    <div id="sheet" class="bottomsheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
-      <div class="sheet-head">
-        <div class="sheet-title" id="sheetTitle">상세</div>
-        <button class="x" id="sheetClose" aria-label="닫기">✕</button>
-      </div>
-      <div id="sheetBody" style="font-size:14px;line-height:1.7"></div>
-    </div>
+        <div id="answer" class="answer"></div>
+      </section>
+    </main>
   </div>
 
   <script>
-    // ====== 환경설정 ======
-    const SHEET_URL = "https://script.google.com/macros/s/AKfycbxgPR8R0tD-eLfWV2tLcaI4SF9sCMh6tJhlYls4Yfzp84EbnoJEhJNShlmTHRqpTb-C/exec";
-    const MAX_NODES = 30;
+    const $q = document.getElementById('q');
+    const $result = document.getElementById('result');
+    const $answer = document.getElementById('answer');
+    const $busy = document.getElementById('busy');
+    const $send = document.getElementById('send');
+    const $mic = document.getElementById('mic');
 
-    const mbtiEmojis = { INTJ:"🧙", INTP:"🤖", ENTJ:"👑", ENTP:"💡", INFJ:"🦄", INFP:"🧚", ENFJ:"⭐", ENFP:"🦋",
-      ISTJ:"📚", ISFJ:"🧸", ESTJ:"💼", ESFJ:"🤗", ISTP:"🔧", ISFP:"🎨", ESTP:"🏃", ESFP:"🎉" };
-    const mbtiColor = { INTJ:"#667eea", INTP:"#f093fb", ENTJ:"#4facfe", ENTP:"#43e97b", INFJ:"#fa709a", INFP:"#30cfd0",
-      ENFJ:"#a8edea", ENFP:"#ff9a9e", ISTJ:"#fbc2eb", ISFJ:"#fddb92", ESTJ:"#f6d365", ESFJ:"#fccb90", ISTP:"#a1c4fd",
-      ISFP:"#d4fc79", ESTP:"#84fab0", ESFP:"#fc5c7d" };
+    // ✅ GAS 웹앱 URL
+    const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxM8pNBBnAxRyoIYHO8be82IzlTCPYOcRRjq_aoiTvcyoprVNhfXQx_KsZlVSVGJlhn/exec';
+    // (선택) 서버에서 BACKEND_TOKEN을 요구하면 여기에 동일 값 지정
+    const BACKEND_TOKEN = '';
 
-    const comp = {
-      INTJ:{excellent:["ENFP","ENTP"],good:["INFJ","INFP","ENFJ"],neutral:["INTJ","ENTJ","INTP","ESTP","ISTP","ISFP"],challenging:["ISFJ","ESFJ","ISTJ","ESFP","ESTJ"]},
-      INTP:{excellent:["ENTJ","ESTJ"],good:["INTJ","ENTP","INFJ"],neutral:["INTP","ENFP","INFP","ENFJ","ISTP","ISFP"],challenging:["ISFJ","ESFJ","ISTJ","ESTP","ESFP"]},
-      ENTJ:{excellent:["INTP","INTJ"],good:["ENTP","ENFJ","ENTJ"],neutral:["INFJ","INFP","ENFP","ESTJ","ISTP","ESTP"],challenging:["ISFJ","ESFJ","ISTJ","ISFP","ESFP"]},
-      ENTP:{excellent:["INFJ","INTJ"],good:["ENFP","ENFJ","ENTJ","INTP"],neutral:["ENTP","INFP","ESTP","ISTP"],challenging:["ISFJ","ESFJ","ISTJ","ISFP","ESFP","ESTJ"]},
-      INFJ:{excellent:["ENTP","ENFP"],good:["INTJ","INFJ","INTP","ENFJ"],neutral:["INFP","ENTJ","ISFJ","ISTJ"],challenging:["ESTP","ESFP","ISTP","ESFJ","ISFP","ESTJ"]},
-      INFP:{excellent:["ENFJ","ENTJ"],good:["INFJ","INTJ","INTP","ENFP"],neutral:["INFP","ENTP","ISFP","ISFJ"],challenging:["ESTP","ESFP","ISTP","ESFJ","ISTJ","ESTJ"]},
-      ENFJ:{excellent:["INFP","ISFP"],good:["ENFP","INFJ","ENFJ","INTJ","ENTJ"],neutral:["ENTP","INTP","ESFJ","ISFJ"],challenging:["ESTP","ESFP","ISTP","ISTJ","ESTJ"]},
-      ENFP:{excellent:["INTJ","INFJ"],good:["ENTJ","ENTP","ENFJ","INFP"],neutral:["ENFP","INTP","ESFP","ISFP"],challenging:["ISTP","ESTP","ISFJ","ISTJ","ESFJ","ESTJ"]},
-      ISTJ:{excellent:["ESFP","ESTP"],good:["ISFJ","ISTJ","ESTJ","ESFJ"],neutral:["INTJ","INTP","INFJ","ISTP"],challenging:["INFP","ENFP","ENFJ","ENTP","ENTJ","ISFP"]},
-      ISFJ:{excellent:["ESFP","ESTP"],good:["ISFJ","ESFJ","ISTJ","ESTJ"],neutral:["INFJ","INFP","ENFJ","ISFP"],challenging:["INTJ","INTP","ENTP","ENTJ","ENFP","ISTP"]},
-      ESTJ:{excellent:["ISFP","ISTP"],good:["ISTJ","ESFJ","ISFJ","ESTJ"],neutral:["ENTJ","INTP","ESTP","ESFP"],challenging:["INFJ","INFP","ENFJ","ENFP","INTJ","ENTP"]},
-      ESFJ:{excellent:["ISFP","ISTP"],good:["ESFJ","ISFJ","ESTJ","ISTJ"],neutral:["ENFJ","ISFP","ESFP","ESTP"],challenging:["INFJ","INFP","ENFP","INTJ","INTP","ENTP","ENTJ"]},
-      ISTP:{excellent:["ESFJ","ESTJ"],good:["INTJ","INTP","ESTP","ISTP"],neutral:["ENTJ","ENTP","ISFJ","ISTJ","ISFP"],challenging:["INFJ","INFP","ENFP","ENFJ","ESFP"]},
-      ISFP:{excellent:["ENFJ","ESFJ","ESTJ"],good:["ISFJ","ESFP","ISFP"],neutral:["INTJ","INTP","INFP","ENFP","ISTP","ISTJ"],challenging:["INFJ","ENTJ","ENTP","ESTP"]},
-      ESTP:{excellent:["ISFJ","ISTJ"],good:["ESFP","ISTP","ESTP","ESFJ"],neutral:["ENTJ","ENTP","INTJ","ESTJ"],challenging:["INFJ","INFP","ENFJ","ENFP","INTP","ISFP"]},
-      ESFP:{excellent:["ISFJ","ISTJ"],good:["ESFJ","ESTP","ISFP","ESFP"],neutral:["ENFP","ENFJ","ESTJ"],challenging:["INFJ","INFP","INTJ","INTP","ENTP","ENTJ","ISTP"]}
-    };
+    async function ask() {
+      const text = $q.value.trim();
+      if (!text) return alert('질문을 입력하세요.');
 
-    // ====== 상태 ======
-    let raw = [];
-    let people = [];
-    let me = null; // 선택된 내 MBTI
+      toggleBusy(true);
+      try {
+        // ★ 프리플라이트 방지: application/json 대신 text/plain
+        const res = await fetch(WEBAPP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ query: text, token: BACKEND_TOKEN || undefined })
+        });
 
-    const el = s => document.querySelector(s);
-    const els = s => document.querySelectorAll(s);
+        // GAS는 종종 200만 내려줘서, 본문에서 에러를 판단
+        const data = await res.json().catch(() => ({}));
 
-    // ====== 유틸 ======
-    const sleep = ms => new Promise(r=>setTimeout(r, ms));
-    const withTimeout = (p, ms=9000) => Promise.race([ p, new Promise((_,rej)=>setTimeout(()=>rej(new Error("요청 시간초과")), ms)) ]);
-    function normalizeName(n){ return (n??"").toString().replace(/\s+/g," ").trim(); }
-    function normalizeType(t){ t=(t??"").toString().toUpperCase().trim(); return /^[IE][NS][TF][JP]$/.test(t)?t:""; }
-
-    function dedupe(list){
-      const seen = new Set(); const out=[];
-      for(const r of list){
-        const key = `${normalizeName(r.name)}|${normalizeType(r.type)}`;
-        if(!seen.has(key) && normalizeType(r.type)){
-          seen.add(key); out.push({name:normalizeName(r.name), type:normalizeType(r.type)});
+        $result.style.display = 'block';
+        if (!res.ok || data.error) {
+          $answer.innerHTML = `<span style="color:#ef4444">오류: ${escapeHtml(data.error || ('HTTP '+res.status))}</span>`;
+        } else {
+          $answer.innerHTML = (data.answer || '응답이 없습니다.').replace(/\n/g,'<br/>');
+          if (Array.isArray(data.recs) && data.recs.length) {
+            const list = data.recs.map(r=>`<li>${escapeHtml(r.name)} <small>[${escapeHtml(r.place_id)}] · 점수:${escapeHtml(String(r.score))}</small></li>`).join('');
+            $answer.insertAdjacentHTML('beforeend', `<hr style="margin:12px 0; opacity:.3;"><div style="font-weight:700; margin-bottom:6px;">다음 가맹점 추천 (Top3)</div><ol style="margin:0; padding-left:18px">${list}</ol>`);
+          }
         }
-      }
-      return out;
-    }
-    function filterPeople(){
-      const q = el("#q").value.trim().toLowerCase();
-      const f = el("#filterMbti").value;
-      return people.filter(p=>{
-        const okQ = q ? (p.name?.toLowerCase().includes(q) || p.type.toLowerCase().includes(q)) : true;
-        const okF = f ? p.type===f : true;
-        return okQ && okF;
-      });
-    }
-
-    // ====== 데이터 로드 ======
-    async function loadData(){
-      const btn = el("#btn-load"); btn.disabled = true; btn.textContent = "로딩 중…";
-      try{
-        const url = SHEET_URL + (SHEET_URL.includes("?")?"&":"?") + "_="+Date.now();
-        const res = await withTimeout(fetch(url, {cache:"no-store"}));
-        if(!res.ok) throw new Error("스프레드시트 응답 오류");
-        const json = await res.json();
-        if(!Array.isArray(json)) throw new Error("형식 오류: 배열이 아님");
-
-        raw = json.map(r=>({name:normalizeName(r.name??r.이름), type:normalizeType(r.type??r.MBTI)}));
-        people = dedupe(raw).slice(0, MAX_NODES);
-
-        render(); updateStats();
-        btn.textContent = "✅ 로드 완료"; await sleep(800); btn.textContent = "👥 관계도 불러오기";
-      }catch(e){
-        console.error(e); alert("데이터 불러오기 실패: " + e.message + "\n웹앱 URL 공개설정/권한을 확인해주세요.");
-        btn.textContent = "다시 시도";
-      }finally{ btn.disabled = false; }
-    }
-
-    // ====== 렌더링 ======
-    const stage = el("#stage");
-    const wires = el("#wires");
-    const tableView = el("#tableView");
-
-    function render(){
-      // 원형 배치 제거: 기본은 그리드 노드 배치, 혹은 표 보기
-      stage.innerHTML = ""; wires.innerHTML = ""; tableView.style.display="none";
-      stage.style.display="block"; wires.style.display="block";
-
-      // 표 모드: me 선택 시 표 우선 표출
-      if(me){
-        renderTable(); // 표 렌더링
-        updateStats();
-        return;
-      }
-
-      const data = filterPeople();
-      const all = data;
-      if(all.length===0){
-        stage.innerHTML = `<div style="position:absolute;inset:0;display:grid;place-items:center;color:#94a3b8">표시할 데이터가 없습니다</div>`;
-        setStats("-", "-", 0);
-        return;
-      }
-
-      const rect = stage.getBoundingClientRect();
-      const cols = Math.ceil(Math.sqrt(all.length));
-      const rows = Math.ceil(all.length/cols);
-      const pad = 16;
-      const cellW = (rect.width - pad*2)/cols;
-      const cellH = (rect.height - pad*2)/rows;
-
-      // 노드 좌표 산출 및 렌더
-      const nodes = [];
-      all.forEach((p,i)=>{
-        const r = Math.floor(i/cols);
-        const c = i%cols;
-        const x = pad + c*cellW + cellW/2;
-        const y = pad + r*cellH + cellH/2;
-        nodes.push({p,x,y});
-      });
-
-      // 전체 연결선(희미하게)
-      for(let i=0;i<nodes.length;i++){
-        for(let j=i+1;j<nodes.length;j++){
-          const L = makeLine(nodes[i], nodes[j]);
-          L.style.opacity = .15;
-          wires.appendChild(L);
-        }
-      }
-
-      // 노드
-      nodes.forEach(n=>{
-        const node = makeNode(n.p);
-        const size = 24;
-        node.style.left = (n.x - size) + "px";
-        node.style.top  = (n.y - size) + "px";
-        stage.appendChild(node);
-      });
-    }
-
-    // 표 렌더링
-    function renderTable(){
-      const data = filterPeople();
-      const others = data.slice();
-      const buckets = { excellent: [], good: [], neutral: [], challenging: [] };
-      if(!me){
-        tableView.innerHTML = `<div class="muted">표 보기는 ‘내 MBTI’를 선택하면 활성화됩니다.</div>`;
-        tableView.style.display="block"; stage.style.display="none"; wires.style.display="none";
-        return;
-      }
-      for(const p of others){
-        const level = getLevel(me.type, p.type);
-        buckets[level].push(p);
-      }
-
-      const sortFn = (a,b)=> (a.type.localeCompare(b.type) || (a.name||"").localeCompare(b.name||""));
-      Object.values(buckets).forEach(arr=>arr.sort(sortFn));
-
-      tableView.innerHTML = `
-        <div class="table-card">
-          <div class="table-title">
-            <div><b>${me.name||"나"}</b> (${me.type}) 기준 관계표</div>
-            <div style="font-size:12px;color:#64748b">총 ${others.length}명</div>
-          </div>
-          <div class="table-grid">
-            ${renderCol("💚 최고", buckets.excellent)}
-            ${renderCol("💙 좋음", buckets.good)}
-            ${renderCol("💛 보통", buckets.neutral)}
-            ${renderCol("🧡 도전적", buckets.challenging)}
-          </div>
-        </div>
-      `;
-      tableView.style.display="block";
-      stage.style.display="none"; wires.style.display="none";
-    }
-
-    function renderCol(title, list){
-      if(!list.length){
-        return `<div class="table-col">
-          <div class="col-head">${title}</div>
-          <div class="col-body"><div class="muted">해당 없음</div></div>
-        </div>`;
-      }
-      const items = list.map(p=>`
-        <div class="pill">
-          <div class="mbti" style="color:${mbtiColor[p.type]||'#334155'}">${p.type}</div>
-          <div>${mbtiEmojis[p.type]||'❓'}</div>
-          <div>${p.name||""}</div>
-        </div>
-      `).join("");
-      return `<div class="table-col">
-        <div class="col-head">${title} <span style="color:#94a3b8;font-weight:600">(${list.length})</span></div>
-        <div class="col-body">${items}</div>
-      </div>`;
-    }
-
-    function makeLine(a,b){
-      const level = getLevel(a.p.type, b.p.type);
-      const color = ({excellent:"#22c55e", good:"#3b82f6", neutral:"#f59e0b", challenging:"#ef4444"})[level] || "#94a3b8";
-      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-      line.setAttribute("x1", a.x); line.setAttribute("y1", a.y);
-      line.setAttribute("x2", b.x); line.setAttribute("y2", b.y);
-      line.setAttribute("stroke", color);
-      line.setAttribute("stroke-width", 2);
-      line.setAttribute("data-t1", a.p.type);
-      line.setAttribute("data-t2", b.p.type);
-      return line;
-    }
-
-    function makeNode(p){
-      const wrap = document.createElement("div");
-      wrap.className = "node";
-      wrap.style.position = "absolute";
-      wrap.style.display = "flex";
-      wrap.style.flexDirection = "column";
-      wrap.style.alignItems = "center";
-      wrap.style.cursor = "pointer";
-      wrap.style.transition = "transform .15s";
-      wrap.onpointerdown = e => e.stopPropagation();
-
-      const circle = document.createElement("div");
-      circle.style.width = "50px"; circle.style.height = "50px"; circle.style.borderRadius = "50%";
-      circle.style.display = "grid"; circle.style.placeItems = "center"; circle.style.fontSize = "22px";
-      circle.style.background = `linear-gradient(135deg, ${mbtiColor[p.type]||"#ddd"}, ${(mbtiColor[p.type]||"#ddd")}dd)`;
-      circle.style.border = "2px solid #fff";
-      circle.style.boxShadow = "0 4px 12px rgba(0,0,0,.12)";
-      circle.textContent = mbtiEmojis[p.type]||"❓";
-
-      const label = document.createElement("div");
-      label.textContent = p.type; label.style.marginTop = "4px"; label.style.padding = "2px 8px";
-      label.style.borderRadius = "999px"; label.style.background = "#fff"; label.style.fontSize = "12px";
-      label.style.fontWeight = "900"; label.style.color = mbtiColor[p.type]||"#334155"; label.style.boxShadow = "0 2px 6px rgba(0,0,0,.08)";
-
-      const name = document.createElement("div");
-      name.textContent = p.name || ""; name.style.marginTop = "2px"; name.style.fontSize = "11px";
-      name.style.color = "#475569"; name.style.maxWidth = "84px"; name.style.whiteSpace = "nowrap";
-      name.style.overflow = "hidden"; name.style.textOverflow = "ellipsis";
-
-      wrap.appendChild(circle); wrap.appendChild(label); if(name.textContent) wrap.appendChild(name);
-
-      wrap.addEventListener("click", ()=>{ openSheet(p); });
-      return wrap;
-    }
-
-    function getLevel(t1, t2){
-      const m = comp[t1]; if(!m) return "neutral";
-      if(m.excellent.includes(t2)) return "excellent";
-      if(m.good.includes(t2)) return "good";
-      if(m.challenging.includes(t2)) return "challenging";
-      return "neutral";
-    }
-
-    // ====== 상세 바텀시트 ======
-    const sheetEl = el("#sheet");
-    function openSheet(p){
-      const title = el("#sheetTitle");
-      const body = el("#sheetBody");
-      title.textContent = `${mbtiEmojis[p.type]||"❓"} ${p.name || p.type}`;
-      if(me && p){
-        const level = getLevel(me.type, p.type);
-        const label = ({excellent:"💚 최고의 궁합",good:"💙 좋은 궁합",neutral:"💛 보통",challenging:"🧡 도전적"})[level];
-        body.innerHTML = `
-          <div style="margin-bottom:10px"><b>${me.type} ↔ ${p.type}</b></div>
-          <div style="font-size:16px;margin-bottom:12px">${label}</div>
-          <div style="font-size:13px;line-height:1.7"><b>관계 팁</b><br/>${relationTip(level)}</div>`;
-      }else{
-        const m = comp[p.type]||{excellent:[],good:[],neutral:[],challenging:[]};
-        body.innerHTML = `
-          <div style="display:grid;gap:6px;font-size:13px">
-            <div>💚 <b>최고</b> : ${m.excellent.join(", ")||"-"}</div>
-            <div>💙 <b>좋음</b> : ${m.good.join(", ")||"-"}</div>
-            <div>💛 <b>보통</b> : ${m.neutral?.join?.(", ")||"-"}</div>
-            <div>🧡 <b>도전적</b> : ${m.challenging.join(", ")||"-"}</div>
-          </div>`;
-      }
-      sheetEl.classList.add("show");
-    }
-    function relationTip(level){
-      switch(level){
-        case "excellent": return "서로의 부족한 부분을 채워줘요. 빠른 합의와 역할 분담으로 시너지가 납니다.";
-        case "good": return "정기 싱크와 간단한 기록만 잘해도 실행력이 좋아집니다.";
-        case "neutral": return "용어와 기준 정렬부터! 정의 정렬 → 일정 합의 순으로 오해를 줄이세요.";
-        case "challenging": return "목표-기준-역할을 문서로 고정하고 데이터로 소통하면 좋아요.";
-        default: return "상대의 강점을 인정하고 공통 목표를 명확히!";
+      } catch (e) {
+        console.error(e);
+        $result.style.display = 'block';
+        $answer.innerHTML = '<span style="color:#ef4444">네트워크 오류 또는 CORS 문제입니다.</span>';
+      } finally {
+        toggleBusy(false);
       }
     }
-    el("#sheetClose").addEventListener("click", ()=> sheetEl.classList.remove("show"));
-    document.addEventListener("click",(e)=>{
-      if(!e.target.closest("#sheet") && !e.target.closest(".node")){
-        sheetEl.classList.remove("show");
-      }
-    });
 
-    // ====== 통계 ======
-    function updateStats(){
-      const data = filterPeople();
-      const total = data.length;
-      if(me){
-        const ex = data.filter(p=>comp[me.type]?.excellent.includes(p.type)).length;
-        const ch = data.filter(p=>comp[me.type]?.challenging.includes(p.type)).length;
-        setStats(ex, ch, total);
-      }else{ setStats("-", "-", total); }
+    function toggleBusy(b){
+      $busy.hidden = !b;
+      $result.setAttribute('aria-busy', b ? 'true' : 'false');
+      $send.disabled = b; $q.disabled = b;
     }
-    function setStats(ex, ch, total){
-      el("#excellentCount").textContent = ex;
-      el("#challengingCount").textContent = ch;
-      el("#totalCount").textContent = total;
+    $send.addEventListener('click', ask);
+    $q.addEventListener('keydown', e => { if (e.key === 'Enter') ask(); });
+
+    // 음성 입력
+    let rec;
+    if ('webkitSpeechRecognition' in window) {
+      rec = new webkitSpeechRecognition();
+      rec.lang = 'ko-KR'; rec.interimResults = false; rec.maxAlternatives = 1;
+      rec.onresult = ev => { $q.value = ev.results[0][0].transcript; ask(); };
+      rec.onerror = () => toggleMic(false);
     }
+    function toggleMic(forceOff){
+      if (!rec) return alert('음성 인식을 지원하지 않습니다.');
+      const on = $mic.dataset.on === 'true';
+      const next = forceOff ? false : !on;
+      $mic.dataset.on = String(next);
+      if (next) rec.start(); else rec.stop();
+    }
+    $mic.addEventListener('click', () => toggleMic());
 
-    // ====== 이벤트 ======
-    el("#btn-load").addEventListener("click", loadData);
-    el("#btn-reset").addEventListener("click", ()=>{
-      el("#q").value = ""; el("#filterMbti").value = ""; me=null; render(); updateStats();
-    });
-    el("#btn-me").addEventListener("click", ()=>{
-      const name = normalizeName(el("#myName").value);
-      const type = normalizeType(el("#myMbti").value);
-      if(!type){ alert("내 MBTI를 선택하세요."); return; }
-      me = {name: name || "나", type, isMe:true};
-      render(); updateStats();
-    });
-    el("#q").addEventListener("input", ()=>{ render(); updateStats(); });
-    el("#filterMbti").addEventListener("change", ()=>{ render(); updateStats(); });
-
-    // 반응형
-    let ro = new ResizeObserver(()=> render());
-    ro.observe(document.querySelector('.viz-wrap'));
-
-    // 초기
-    window.addEventListener("load", loadData);
-
-    document.addEventListener("keydown",(e)=>{
-      if(e.key==="Escape" && document.activeElement===el("#q")){
-        el("#q").value=""; render(); updateStats();
-      }
-    });
+    function escapeHtml(str){
+      return String(str).replace(/[&<>"']/g, s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+    }
   </script>
-
-  <style>
-    @keyframes pulse {0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-  </style>
 </body>
 </html>
