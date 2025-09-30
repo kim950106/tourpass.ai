@@ -68,11 +68,6 @@
       outline:2px solid color-mix(in oklab, var(--brand) 32%, white);
       outline-offset:2px;
     }
-    .prefix{
-      width:36px; height:36px; border-radius:999px; display:grid; place-items:center;
-      border:1px solid var(--line); background:var(--panel); color:var(--muted);
-      font-weight:700; flex:0 0 auto;
-    }
     .input{ flex:1 1 auto; border:none; outline:none; font-size:16px; color:var(--ink); }
     .input::placeholder{ color:var(--muted); }
 
@@ -118,7 +113,6 @@
     @media (max-width:520px){
       .header{ padding:12px 14px }
       .main{ padding:16px }
-      .prefix{ display:none }
     }
   </style>
 </head>
@@ -126,7 +120,6 @@
   <div class="app">
     <!-- 헤더 -->
     <header class="header">
-      <!-- 로고: 파일명 맞춰 교체하세요 -->
       <img class="logo" src="tourpass_logo.png" alt="tourpass 로고" />
       <div>
         <div class="brand">Tourpass AI 어시스턴트</div>
@@ -136,11 +129,10 @@
 
     <!-- 메인 -->
     <main class="main">
-      <h1 class="title">무슨 작업을 하고 계세요?</h1>
+      <h1 class="title">투어패스 워크숍에 대해 궁금하세요?</h1>
 
-      <!-- 입력 바 -->
+      <!-- 입력 바: 좌측 + 아이콘 제거 -->
       <div class="askbar" role="search">
-        <div class="prefix" aria-hidden>+</div>
         <input id="q" class="input" placeholder="예) 워크숍 일정 알려줘" autocomplete="off" />
         <button id="mic" class="btn" title="음성 입력" aria-label="음성 입력">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -149,11 +141,11 @@
             <path d="M12 18v3" stroke="currentColor" stroke-width="1.5"/>
           </svg>
         </button>
-        <button id="send" class="btn" title="질문 보내기" aria-label="질문 보내기">
+        <button id="send" class="btn" title="질문 보내기 (Enter)" aria-label="질문 보내기">
           <div class="wave" aria-hidden><span></span><span></span><span></span></div>
         </button>
       </div>
-      <p class="hint">Enter 전송 · 마이크 질문 · 백엔드는 Google Apps Script 웹앱으로 연결됨</p>
+      <p class="hint">무엇이든 물어보세요.</p>
 
       <!-- 결과 -->
       <section id="result" class="result" aria-live="polite" aria-busy="false">
@@ -178,10 +170,9 @@
     const $mic = document.getElementById('mic');
     const $toast = document.getElementById('toast');
 
-    // ✅ GAS 웹앱 URL (중요: /api/chat → 웹앱 URL로 교체)
+    // ✅ GAS 웹앱 URL
     const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxM8pNBBnAxRyoIYHO8be82IzlTCPYOcRRjq_aoiTvcyoprVNhfXQx_KsZlVSVGJlhn/exec';
-    // (옵션) Apps Script 속성에 BACKEND_TOKEN을 썼다면 여기에 동일 값
-    const BACKEND_TOKEN = ''; // 예: 'my-secret-token'
+    const BACKEND_TOKEN = ''; // (옵션)
 
     // ====== 전송 함수 ======
     async function ask() {
@@ -193,10 +184,7 @@
         const res = await fetch(WEBAPP_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            query: text,
-            token: BACKEND_TOKEN || undefined
-          })
+          body: JSON.stringify({ query: text, token: BACKEND_TOKEN || undefined })
         });
 
         if (!res.ok) throw new Error('응답 오류: ' + res.status);
@@ -207,9 +195,8 @@
           ? escapeHtml(data.answer).replace(/\n/g,'<br/>')
           : '<span style="color:#64748b">응답이 비어 있습니다.</span>';
 
-        // 추천이 오면 함께 표시
         if (Array.isArray(data.recs) && data.recs.length) {
-          const list = data.recs.map((r,i)=>`<li>${escapeHtml(r.name)} <small>[${escapeHtml(r.place_id)}] · 점수:${escapeHtml(String(r.score))}</small></li>`).join('');
+          const list = data.recs.map(r=>`<li>${escapeHtml(r.name)} <small>[${escapeHtml(r.place_id)}] · 점수:${escapeHtml(String(r.score))}</small></li>`).join('');
           $answer.insertAdjacentHTML('beforeend', `<hr style="margin:12px 0; opacity:.3;"><div style="font-weight:700; margin-bottom:6px;">다음 가맹점 추천 (Top3)</div><ol style="margin:0; padding-left:18px">${list}</ol>`);
         }
 
@@ -267,4 +254,3 @@
   </script>
 </body>
 </html>
-
