@@ -11,150 +11,54 @@
 
   <style>
     :root{
-      --ink:#0f172a;
-      --muted:#64748b;
-      --line:#e2e8f0;
-      --bg:#ffffff;
-      --panel:#f8fafc;
-      --brand:#5b46ff;
-      --ok:#10b981;
-      --shadow:0 10px 40px rgba(2,6,23,.08);
+      --ink:#0f172a; --muted:#64748b; --line:#e2e8f0; --bg:#ffffff;
+      --panel:#f8fafc; --brand:#5b46ff; --ok:#10b981; --shadow:0 10px 40px rgba(2,6,23,.08);
     }
-    *{box-sizing:border-box}
-    html,body{height:100%}
+    *{box-sizing:border-box} html,body{height:100%}
     body{
-      margin:0;
-      font-family:'Pretendard',system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+      margin:0; font-family:'Pretendard',system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
       color:var(--ink);
       background:
         radial-gradient(1200px 600px at 10% -10%, #eef2ff 0%, transparent 60%),
-        radial-gradient(900px 500px at 90% 110%, #fdf2f8 0%, transparent 60%),
-        #fff;
-      display:flex; align-items:center; justify-content:center;
-      padding:24px;
+        radial-gradient(900px 500px at 90% 110%, #fdf2f8 0%, transparent 60%), #fff;
+      display:flex; align-items:center; justify-content:center; padding:24px;
     }
-
-    .app{
-      width:min(880px, 96vw);
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:18px;
-      box-shadow:var(--shadow);
-      overflow:hidden;
-    }
-    .header{
-      padding:20px 24px;
-      border-bottom:1px solid var(--line);
-      text-align:center;
-      background:linear-gradient(180deg, #ffffff, #fbfbff);
-    }
-    .brand{
-      font-weight:800;
-      font-size:clamp(22px, 3.6vw, 28px);
-      margin-bottom:4px;
-    }
+    .app{ width:min(880px,96vw); background:#fff; border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow); overflow:hidden; }
+    .header{ padding:20px 24px; border-bottom:1px solid var(--line); text-align:center; background:linear-gradient(180deg,#fff,#fbfbff) }
+    .brand{ font-weight:800; font-size:clamp(22px,3.6vw,28px); margin-bottom:4px }
     .sub{ color:var(--muted); font-size:14px }
-
-    .main{ padding:26px 24px; }
-    .title{
-      font-weight:800;
-      font-size:clamp(22px, 3.6vw, 30px);
-      text-align:center;
-      margin:0 0 22px;
-    }
-
-    .askbar{
-      position:relative;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding:14px 18px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background:#fff;
-      box-shadow:var(--shadow);
-      transition: all 0.2s ease;
-    }
-    .askbar:focus-within{
-      outline:2px solid color-mix(in oklab, var(--brand) 35%, white);
-      outline-offset:2px;
-    }
-
-    .input{
-      flex:1;
-      border:none;
-      outline:none;
-      font-size:16px;
-      color:var(--ink);
-    }
-    .input::placeholder{ color:var(--muted); }
-
-    .btn{
-      width:38px;
-      height:38px;
-      border:none;
-      background:#fff;
-      border-radius:50%;
-      display:grid;
-      place-items:center;
-      cursor:pointer;
-      border:1px solid var(--line);
-      transition:all 0.15s ease;
-    }
-    .btn:hover{ background:#f9f9ff }
-    .btn:active{ transform:translateY(1px) }
-    .btn[data-on="true"]{
-      border-color:color-mix(in oklab, var(--ok) 60%, var(--line));
-      box-shadow:0 0 0 4px color-mix(in oklab, var(--ok) 18%, white);
-    }
-
-    .hint{ margin-top:14px; text-align:center; font-size:13px; color:var(--muted); }
-
-    .result{
-      margin-top:24px;
-      display:none;
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:18px;
-    }
-    .res-head{ display:flex; align-items:center; gap:8px; font-weight:700; margin-bottom:8px; }
-    .loader{ width:16px; height:16px; border-radius:50%; border:2px solid var(--brand); border-top-color:transparent; animation:spin 1s linear infinite; }
+    .main{ padding:26px 24px }
+    .title{ font-weight:800; font-size:clamp(22px,3.6vw,30px); text-align:center; margin:0 0 22px }
+    .askbar{ position:relative; display:flex; align-items:center; gap:10px; padding:14px 18px; border-radius:999px; border:1px solid var(--line); background:#fff; box-shadow:var(--shadow); transition:.2s }
+    .askbar:focus-within{ outline:2px solid color-mix(in oklab,var(--brand) 35%,white); outline-offset:2px }
+    .input{ flex:1; border:none; outline:none; font-size:16px; color:var(--ink) }
+    .input::placeholder{ color:var(--muted) }
+    .btn{ width:38px; height:38px; border:none; background:#fff; border-radius:50%; display:grid; place-items:center; cursor:pointer; border:1px solid var(--line); transition:.15s }
+    .btn:hover{ background:#f9f9ff } .btn:active{ transform:translateY(1px) }
+    .btn[data-on="true"]{ border-color:color-mix(in oklab,var(--ok) 60%,var(--line)); box-shadow:0 0 0 4px color-mix(in oklab,var(--ok) 18%,white) }
+    .hint{ margin-top:14px; text-align:center; font-size:13px; color:var(--muted) }
+    .result{ margin-top:24px; display:none; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px }
+    .res-head{ display:flex; align-items:center; gap:8px; font-weight:700; margin-bottom:8px }
+    .loader{ width:16px; height:16px; border-radius:50%; border:2px solid var(--brand); border-top-color:transparent; animation:spin 1s linear infinite }
     @keyframes spin{to{transform:rotate(360deg)}}
-    .answer{
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:12px;
-      padding:16px;
-      line-height:1.7;
-      font-size:15px;
-    }
-
-    .wave{display:inline-flex; gap:2px; align-items:end;}
-    .wave span{ width:3px; height:10px; background:var(--brand); border-radius:2px; animation:wv 1s ease-in-out infinite; }
-    .wave span:nth-child(2){ animation-delay:.1s }
-    .wave span:nth-child(3){ animation-delay:.2s }
+    .answer{ background:#fff; border:1px solid var(--line); border-radius:12px; padding:16px; line-height:1.7; font-size:15px }
+    .wave{display:inline-flex; gap:2px; align-items:end}
+    .wave span{ width:3px; height:10px; background:var(--brand); border-radius:2px; animation:wv 1s ease-in-out infinite }
+    .wave span:nth-child(2){ animation-delay:.1s } .wave span:nth-child(3){ animation-delay:.2s }
     @keyframes wv{ 0%,100%{height:6px} 50%{height:14px} }
-
-    @media (max-width:520px){
-      .main{ padding:18px }
-      .askbar{ padding:12px 14px }
-    }
+    @media (max-width:520px){ .main{padding:18px} .askbar{padding:12px 14px} }
   </style>
 </head>
 <body>
   <div class="app">
-    <!-- 헤더 -->
     <header class="header">
       <div class="brand">Tourpass AI 어시스턴트</div>
       <div class="sub">Google Sheets + OpenAI로 만드는 지능형 비서</div>
     </header>
 
-    <!-- 메인 -->
     <main class="main">
       <h1 class="title">투어패스 워크숍에 대해 궁금하세요?</h1>
 
-      <!-- 입력 바 -->
       <div class="askbar" role="search">
         <input id="q" class="input" placeholder="예) 워크숍 일정 알려줘" autocomplete="off" />
         <button id="mic" class="btn" title="음성 입력" aria-label="음성 입력">
@@ -170,7 +74,6 @@
       </div>
       <p class="hint">무엇이든 물어보세요.</p>
 
-      <!-- 결과 -->
       <section id="result" class="result" aria-live="polite" aria-busy="false">
         <div class="res-head">
           <div id="busy" class="loader" hidden></div>
@@ -189,7 +92,9 @@
     const $send = document.getElementById('send');
     const $mic = document.getElementById('mic');
 
+    // ✅ GAS 웹앱 URL
     const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxM8pNBBnAxRyoIYHO8be82IzlTCPYOcRRjq_aoiTvcyoprVNhfXQx_KsZlVSVGJlhn/exec';
+    // (선택) 서버에서 BACKEND_TOKEN을 요구하면 여기에 동일 값 지정
     const BACKEND_TOKEN = '';
 
     async function ask() {
@@ -198,21 +103,30 @@
 
       toggleBusy(true);
       try {
+        // ★ 프리플라이트 방지: application/json 대신 text/plain
         const res = await fetch(WEBAPP_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({ query: text, token: BACKEND_TOKEN || undefined })
         });
 
-        if (!res.ok) throw new Error('응답 오류: ' + res.status);
-        const data = await res.json();
+        // GAS는 종종 200만 내려줘서, 본문에서 에러를 판단
+        const data = await res.json().catch(() => ({}));
 
         $result.style.display = 'block';
-        $answer.innerHTML = (data.answer || '응답이 없습니다.').replace(/\n/g,'<br/>');
+        if (!res.ok || data.error) {
+          $answer.innerHTML = `<span style="color:#ef4444">오류: ${escapeHtml(data.error || ('HTTP '+res.status))}</span>`;
+        } else {
+          $answer.innerHTML = (data.answer || '응답이 없습니다.').replace(/\n/g,'<br/>');
+          if (Array.isArray(data.recs) && data.recs.length) {
+            const list = data.recs.map(r=>`<li>${escapeHtml(r.name)} <small>[${escapeHtml(r.place_id)}] · 점수:${escapeHtml(String(r.score))}</small></li>`).join('');
+            $answer.insertAdjacentHTML('beforeend', `<hr style="margin:12px 0; opacity:.3;"><div style="font-weight:700; margin-bottom:6px;">다음 가맹점 추천 (Top3)</div><ol style="margin:0; padding-left:18px">${list}</ol>`);
+          }
+        }
       } catch (e) {
         console.error(e);
-        $answer.innerHTML = '<span style="color:#ef4444">오류 발생: 웹앱 설정을 확인하세요.</span>';
         $result.style.display = 'block';
+        $answer.innerHTML = '<span style="color:#ef4444">네트워크 오류 또는 CORS 문제입니다.</span>';
       } finally {
         toggleBusy(false);
       }
@@ -221,19 +135,16 @@
     function toggleBusy(b){
       $busy.hidden = !b;
       $result.setAttribute('aria-busy', b ? 'true' : 'false');
-      $send.disabled = b;
-      $q.disabled = b;
+      $send.disabled = b; $q.disabled = b;
     }
-
     $send.addEventListener('click', ask);
     $q.addEventListener('keydown', e => { if (e.key === 'Enter') ask(); });
 
+    // 음성 입력
     let rec;
     if ('webkitSpeechRecognition' in window) {
       rec = new webkitSpeechRecognition();
-      rec.lang = 'ko-KR';
-      rec.interimResults = false;
-      rec.maxAlternatives = 1;
+      rec.lang = 'ko-KR'; rec.interimResults = false; rec.maxAlternatives = 1;
       rec.onresult = ev => { $q.value = ev.results[0][0].transcript; ask(); };
       rec.onerror = () => toggleMic(false);
     }
@@ -245,6 +156,11 @@
       if (next) rec.start(); else rec.stop();
     }
     $mic.addEventListener('click', () => toggleMic());
+
+    function escapeHtml(str){
+      return String(str).replace(/[&<>"']/g, s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+    }
   </script>
 </body>
 </html>
+
