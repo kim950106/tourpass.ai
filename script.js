@@ -1,59 +1,106 @@
-// ================================
-// 2025 투어패스 워크숍 AI 어시스턴트
-// - 검색창 입력 → GAS 백엔드 POST 호출 → 답변 출력
-// ================================
+// ===== 설정 =====
+const WEBAPP_URL =
+  "https://script.google.com/macros/s/AKfycbxM8pNBBnAxRyoIYHO8be82IzlTCPYOcRRjq_aoiTvcyoprVNhfXQx_KsZlVSVGJlhn/exec"; // ← 본인 GAS 웹앱 URL
+const BACKEND_TOKEN = document.querySelector('meta[name="backend-token"]')?.content || "";
 
-// 백엔드 엔드포인트 URL (Google Apps Script 배포 주소 입력)
-const API_URL = "https://script.google.com/macros/s/AKfycbxM8pNBBnAxRyoIYHO8be82IzlTCPYOcRRjq_aoiTvcyoprVNhfXQx_KsZlVSVGJlhn/exec";
+// ===== 엘리먼트 =====
+const $q = document.getElementById("q");
+const $go = document.getElementById("go");
+const $chips = document.getElementById("chips");
+const $alert = document.getElementById("alert");
+const $result = document.getElementById("result");
+const $answer = document.getElementById("answer");
+const $spinner = document.getElementById("spinner");
+const $ping = document.getElementById("ping");
 
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.querySelector("form");
-  const input = document.querySelector("#query");
-  const resultBox = document.querySelector("#result");
-  const loading = document.querySelector("#loading");
+// ===== 유틸 =====
+function showAlert(msg) {
+  $alert.textContent = msg;
+  $alert.hidden = false;
+}
+function hideAlert() { $alert.hidden = true; }
+function setBusy(on) {
+  $spinner.hidden = !on;
+  $result.setAttribute("aria-busy", on ? "true" : "false");
+  $go.disabled = on;
+  $q.disabled = on;
+}
+function htmlEscape(s) {
+  return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const query = input.value.trim();
-    if (!query) {
-      resultBox.innerHTML = "❗ 검색어를 입력하세요.";
-      return;
+// ===== 메인 전송 =====
+async function ask(query) {
+  const text = (query ?? $q.value).trim();
+  if (!text) { showAlert("질문을 입력하세요."); return; }
+  hideAlert(); setBusy(true);
+  try {
+    const res = await fetch(WEBAPP_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: text, token: BACKEND_TOKEN || undefined })
+    });
+
+    // 네트워크 응답 체크
+    if (!res.ok) {
+      const t = await res.text().catch(()=> "");
+      throw new Error(`응답 오류 ${res.status} ${res.statusText} ${t ? "- " + t.slice(0,200) : ""}`);
     }
 
-    resultBox.innerHTML = "";
-    loading.style.display = "block";
-
-    try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          query: query,
-          last_place_id: "",
-          token: ""
-        }),
-      });
-
-      if (!res.ok) throw new Error(`서버 오류: ${res.status}`);
-
-      const data = await res.json();
-      console.log("✅ 응답 데이터:", data);
-
-      if (data.answer) {
-        resultBox.innerHTML = `<div class="answer-box">${data.answer.replace(/\n/g, "<br>")}</div>`;
-      } else if (data.error) {
-        resultBox.innerHTML = `<div class="error">❌ 오류: ${data.error}</div>`;
-      } else {
-        resultBox.innerHTML = `<div class="error">⚠️ 응답을 처리하지 못했습니다.</div>`;
-      }
-
-    } catch (err) {
-      console.error("❌ 요청 실패:", err);
-      resultBox.innerHTML = `<div class="error">🚨 연결 오류: ${err.message}</div>`;
-    } finally {
-      loading.style.display = "none";
+    // JSON 파싱
+    let data;
+    const ct = res.headers.get("content-type") || "";
+    if (ct.includes("application/json")) data = await res.json();
+    else {
+      const t = await res.text();
+      try { data = JSON.parse(t); } catch { throw new Error("JSON 파싱 실패: " + t.slice(0,300)); }
     }
-  });
+
+    // 결과 표시
+    const ans = (data && typeof data.answer === "string" && data.answer.trim())
+      ? data.answer
+      : "응답이 비어 있습니다.";
+
+    $answer.innerHTML = htmlEscape(ans).replace(/\n/g, "<br/>");
+    $result.hidden = false;
+
+    if (Array.isArray(data?.recs) && data.recs.length) {
+      const list = data.recs
+        .map(r => `<li>${htmlEscape(r.name)} <small>[${htmlEscape(r.place_id)}] · 점수:${htmlEscape(String(r.score))}</small></li>`)
+        .join("");
+      $answer.insertAdjacentHTML("beforeend", `<hr><div style="font-weight:700;margin-bottom:6px">추천</div><ol>${list}</ol>`);
+    }
+  } catch (err) {
+    console.error(err);
+    showAlert("오류 발생: 서버 연결/배포 설정을 확인하세요.");
+  } finally {
+    setBusy(false);
+  }
+}
+
+// ===== 이벤트 =====
+$go.addEventListener("click", () => ask());
+$q.addEventListener("keydown", e => { if (e.key === "Enter") ask(); });
+$chips.addEventListener("click", e => {
+  const btn = e.target.closest("button[data-q]");
+  if (!btn) return;
+  $q.value = btn.dataset.q;
+  ask(btn.dataset.q);
 });
+$ping.addEventListener("click", async () => {
+  hideAlert(); setBusy(true);
+  try {
+    const url = new URL(WEBAPP_URL);
+    const res = await fetch(url, { method: "GET" }); // doGet()이 'OK'를 반환해야 함
+    const t = await res.text();
+    showAlert(`연결 OK: ${res.status} ${t.slice(0,100)}`);
+  } catch (e) {
+    console.error(e);
+    showAlert("연결 실패: 웹앱 URL/권한을 확인하세요.");
+  } finally {
+    setBusy(false);
+  }
+});
+
+// 페이지 로드시 포커스
+window.addEventListener("load", () => $q.focus());
