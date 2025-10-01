@@ -1,222 +1,61 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tourpass 워크숍 AI 어시스턴트</title>
-  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --brand: #4f46e5;
-      --brand-light: #eef2ff;
-      --text: #0f172a;
-      --muted: #64748b;
-      --line: #e2e8f0;
-      --bg: #f8fafc;
-      --error: #ef4444;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Pretendard', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      padding: 40px 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .container {
-      width: min(800px, 100%);
-      text-align: center;
-    }
-    h1 {
-      font-size: clamp(26px, 4vw, 34px);
-      font-weight: 800;
-      margin-bottom: 12px;
-    }
-    p.sub {
-      color: var(--muted);
-      font-size: 15px;
-      margin-bottom: 40px;
-    }
-    .search-bar {
-      display: flex;
-      align-items: center;
-      background: #fff;
-      border: 2px solid var(--brand);
-      border-radius: 999px;
-      padding: 14px 22px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-      transition: 0.2s;
-    }
-    .search-bar:focus-within {
-      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.2);
-    }
-    .search-bar input {
-      flex: 1;
-      border: none;
-      font-size: 17px;
-      outline: none;
-    }
-    .search-bar button {
-      border: none;
-      background: var(--brand);
-      color: #fff;
-      font-size: 16px;
-      padding: 10px 22px;
-      border-radius: 999px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .search-bar button:hover { background: #4338ca; }
-
-    .faq-tags {
-      margin-top: 20px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 8px;
-    }
-    .faq-tags button {
-      border: 1px solid var(--line);
-      background: #fff;
-      border-radius: 999px;
-      padding: 8px 14px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .faq-tags button:hover {
-      background: var(--brand-light);
-      border-color: var(--brand);
-      color: var(--brand);
-    }
-
-    .result {
-      margin-top: 36px;
-      background: #fff;
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 4px 30px rgba(0,0,0,0.06);
-      text-align: left;
-      display: none;
-    }
-    .result h2 {
-      font-size: 18px;
-      margin-bottom: 12px;
-      border-left: 4px solid var(--brand);
-      padding-left: 10px;
-    }
-    .answer {
-      font-size: 16px;
-      line-height: 1.7;
-      margin-bottom: 20px;
-    }
-    .recs {
-      border-top: 1px solid var(--line);
-      padding-top: 12px;
-      font-size: 15px;
-    }
-    .error {
-      color: var(--error);
-      background: #fee2e2;
-      border: 1px solid #fecaca;
-      padding: 12px;
-      border-radius: 12px;
-      margin-top: 20px;
-      display: none;
-    }
-
-    @media (max-width: 600px) {
-      body { padding: 20px; }
-      .search-bar button { padding: 8px 16px; font-size: 14px; }
-      .search-bar input { font-size: 15px; }
-    }
-  </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>2025 투어패스 워크숍 AI 어시스턴트</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css" />
+  <!-- (선택) 웹앱 토큰을 쓸 경우 여기에 넣어두고 script.js에서 읽습니다. -->
+  <meta name="backend-token" content="">
 </head>
 <body>
-  <div class="container">
-    <h1>📊 2025 투어패스 워크숍 AI 어시스턴트</h1>
-    <p class="sub">일정·예산·제출양식까지 한 번에 검색하세요.</p>
+  <header class="site-head">
+    <div class="brand">
+      <div class="brand-mark">📊</div>
+      <div class="brand-text">
+        <div class="brand-title">2025 투어패스 워크숍 AI 어시스턴트</div>
+        <div class="brand-sub">일정·예산·제출양식까지 한 번에 검색하세요.</div>
+      </div>
+    </div>
+  </header>
 
-    <!-- 검색창 -->
-    <div class="search-bar">
-      <input id="query" type="text" placeholder="예: 워크숍 일정 알려줘" />
-      <button id="searchBtn">검색</button>
+  <main class="shell">
+    <!-- 검색바 -->
+    <div class="searchbar" role="search">
+      <input id="q" class="q" placeholder="예) 전체 일정 알려줘" autocomplete="off" />
+      <button id="go" class="btn-search" aria-label="검색">검색</button>
     </div>
 
-    <!-- 추천 질문 -->
-    <div class="faq-tags">
-      <button>전체 일정 알려줘</button>
-      <button>예산 항목별 금액</button>
-      <button>결과보고서 양식</button>
-      <button>담당자 누구야?</button>
-      <button>2일차 세부일정</button>
+    <!-- 추천 프롬프트 -->
+    <div class="chips">
+      <button class="chip" data-q="전체 일정 알려줘">전체 일정 알려줘</button>
+      <button class="chip" data-q="예산 항목별 금액 정리해줘">예산 항목별 금액</button>
+      <button class="chip" data-q="결과보고서 양식 알려줘">결과보고서 양식</button>
+      <button class="chip" data-q="담당자 누구야?">담당자 누구야?</button>
+      <button class="chip" data-q="2일차 세부일정 알려줘">2일차 세부일정</button>
     </div>
 
-    <!-- 결과 영역 -->
-    <div id="result" class="result">
-      <h2>GPT 분석 결과</h2>
-      <div class="answer" id="answer"></div>
-      <div class="recs" id="recs"></div>
-    </div>
+    <!-- 상태/오류 -->
+    <div id="alert" class="alert" hidden></div>
 
-    <div id="error" class="error"></div>
-  </div>
+    <!-- 결과 -->
+    <section id="result" class="result" aria-live="polite" aria-busy="false" hidden>
+      <div class="res-head">
+        <div id="spinner" class="spinner" hidden></div>
+        <h2 class="res-title">GPT 분석 결과</h2>
+      </div>
+      <div id="answer" class="answer"></div>
+    </section>
+  </main>
 
-  <script>
-    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxM8pNBBnAxRyoIYHO8be82IzlTCPYOcRRjq_aoiTvcyoprVNhfXQx_KsZlVSVGJlhn/exec";
-    const TOKEN = ""; // 필요 시 입력
+  <footer class="site-foot">
+    <button id="ping" class="btn-ping" title="백엔드 연결 점검">연결 점검</button>
+    <span class="foot-hint">· 프론트엔드: GitHub Pages · 백엔드: Google Apps Script</span>
+  </footer>
 
-    const $query = document.getElementById("query");
-    const $btn = document.getElementById("searchBtn");
-    const $result = document.getElementById("result");
-    const $answer = document.getElementById("answer");
-    const $recs = document.getElementById("recs");
-    const $error = document.getElementById("error");
-
-    async function askGPT() {
-      const text = $query.value.trim();
-      if (!text) return alert("질문을 입력하세요!");
-
-      $error.style.display = "none";
-      $result.style.display = "none";
-
-      try {
-        const res = await fetch(WEBAPP_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query: text, token: TOKEN || undefined })
-        });
-
-        if (!res.ok) throw new Error("서버 응답 오류: " + res.status);
-
-        const data = await res.json();
-        $answer.innerHTML = (data.answer || "응답이 없습니다.").replace(/\n/g, "<br>");
-        if (data.recs && data.recs.length) {
-          $recs.innerHTML = "<strong>📍 추천 다음 장소</strong><br>" + 
-            data.recs.map(r => `- ${r.name} (${r.score}회 방문)`).join("<br>");
-        } else {
-          $recs.innerHTML = "";
-        }
-
-        $result.style.display = "block";
-      } catch (err) {
-        console.error(err);
-        $error.textContent = "⚠️ 오류 발생: 서버 연결을 확인하세요.";
-        $error.style.display = "block";
-      }
-    }
-
-    $btn.addEventListener("click", askGPT);
-    $query.addEventListener("keydown", e => { if (e.key === "Enter") askGPT(); });
-
-    document.querySelectorAll(".faq-tags button").forEach(btn => {
-      btn.addEventListener("click", () => {
-        $query.value = btn.textContent;
-        askGPT();
-      });
-    });
-  </script>
+  <script src="./script.js"></script>
 </body>
 </html>
