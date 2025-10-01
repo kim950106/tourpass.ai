@@ -1,211 +1,222 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Tourpass AI 어시스턴트</title>
-
-  <!-- Pretendard -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tourpass 워크숍 AI 어시스턴트</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
-    :root{
-      --ink:#0f172a; --muted:#64748b; --line:#e2e8f0;
-      --bg:#ffffff; --panel:#f8fafc; --brand:#5b46ff;
-      --ok:#10b981; --shadow:0 12px 45px rgba(2,6,23,.08);
+    :root {
+      --brand: #4f46e5;
+      --brand-light: #eef2ff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --bg: #f8fafc;
+      --error: #ef4444;
     }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0; font-family:'Pretendard',system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
-      color:var(--ink);
-      background:
-        radial-gradient(1200px 600px at 10% -10%, #eef2ff 0%, transparent 60%),
-        radial-gradient(900px 500px at 90% 110%, #fdf2f8 0%, transparent 60%),
-        #fff;
-      display:flex; align-items:flex-start; justify-content:center; padding:22px;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Pretendard', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
-    .app{
-      width:min(920px,96vw);
-      background:#fff; border:1px solid var(--line);
-      border-radius:18px; box-shadow:var(--shadow); overflow:hidden;
+    .container {
+      width: min(800px, 100%);
+      text-align: center;
     }
-    .header{
-      padding:22px 24px 16px; text-align:center; border-bottom:1px solid var(--line);
-      background:linear-gradient(180deg,#fff,#fafaff);
+    h1 {
+      font-size: clamp(26px, 4vw, 34px);
+      font-weight: 800;
+      margin-bottom: 12px;
     }
-    .brand{font-weight:800; font-size:clamp(20px,3.8vw,28px); letter-spacing:-.2px}
-    .sub{margin-top:6px; color:var(--muted); font-size:13px}
-    .main{padding:26px 24px}
-    .title{margin:0 0 18px; text-align:center; font-size:clamp(22px,4.2vw,32px); font-weight:800; letter-spacing:-.5px}
-
-    .askbar{
-      display:flex; align-items:center; gap:10px;
-      border:1px solid var(--line); border-radius:999px; padding:14px 16px;
-      background:#fff; box-shadow:var(--shadow); transition:.2s;
+    p.sub {
+      color: var(--muted);
+      font-size: 15px;
+      margin-bottom: 40px;
     }
-    .askbar:focus-within{ outline:2px solid color-mix(in oklab, var(--brand) 35%, #fff); outline-offset:2px; }
-    .input{flex:1; border:none; outline:none; font-size:16px; background:transparent}
-    .input::placeholder{color:var(--muted)}
-
-    .btn{
-      width:38px; height:38px; border-radius:50%;
-      border:1px solid var(--line); background:#fff; display:grid; place-items:center;
-      cursor:pointer; transition:transform .08s ease, background .15s ease;
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background: #fff;
+      border: 2px solid var(--brand);
+      border-radius: 999px;
+      padding: 14px 22px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+      transition: 0.2s;
     }
-    .btn:hover{ background:#f7f7ff }
-    .btn:active{ transform:translateY(1px) }
-    .btn[disabled]{ opacity:.6; cursor:not-allowed }
+    .search-bar:focus-within {
+      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.2);
+    }
+    .search-bar input {
+      flex: 1;
+      border: none;
+      font-size: 17px;
+      outline: none;
+    }
+    .search-bar button {
+      border: none;
+      background: var(--brand);
+      color: #fff;
+      font-size: 16px;
+      padding: 10px 22px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .search-bar button:hover { background: #4338ca; }
 
-    .wave{display:inline-flex; gap:2px; align-items:end;}
-    .wave span{ width:3px; height:10px; background:var(--brand); border-radius:2px; animation:wv 1s ease-in-out infinite; }
-    .wave span:nth-child(2){ animation-delay:.1s } .wave span:nth-child(3){ animation-delay:.2s }
-    @keyframes wv{ 0%,100%{height:6px} 50%{height:14px} }
+    .faq-tags {
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+    }
+    .faq-tags button {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .faq-tags button:hover {
+      background: var(--brand-light);
+      border-color: var(--brand);
+      color: var(--brand);
+    }
 
-    .hint{margin-top:10px; text-align:center; font-size:12px; color:var(--muted)}
-    .result{margin-top:22px; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:16px; display:none}
-    .res-head{display:flex; align-items:center; gap:8px; font-weight:700; margin-bottom:8px}
-    .loader{ width:16px; height:16px; border-radius:50%; border:2px solid var(--brand); border-top-color:transparent; animation:spin 1s linear infinite; }
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .answer{ background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px; line-height:1.68; font-size:15px }
+    .result {
+      margin-top: 36px;
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 30px rgba(0,0,0,0.06);
+      text-align: left;
+      display: none;
+    }
+    .result h2 {
+      font-size: 18px;
+      margin-bottom: 12px;
+      border-left: 4px solid var(--brand);
+      padding-left: 10px;
+    }
+    .answer {
+      font-size: 16px;
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+    .recs {
+      border-top: 1px solid var(--line);
+      padding-top: 12px;
+      font-size: 15px;
+    }
+    .error {
+      color: var(--error);
+      background: #fee2e2;
+      border: 1px solid #fecaca;
+      padding: 12px;
+      border-radius: 12px;
+      margin-top: 20px;
+      display: none;
+    }
 
-    .toast{position:fixed; left:50%; bottom:20px; transform:translateX(-50%);
-      background:#111827; color:#fff; border-radius:10px; padding:10px 14px; font-size:13px; display:none; box-shadow:0 10px 30px rgba(0,0,0,.2);}
-
-    @media (max-width:520px){ .main{padding:18px} .askbar{padding:12px 14px} }
+    @media (max-width: 600px) {
+      body { padding: 20px; }
+      .search-bar button { padding: 8px 16px; font-size: 14px; }
+      .search-bar input { font-size: 15px; }
+    }
   </style>
 </head>
 <body>
-  <div class="app">
-    <header class="header">
-      <div class="brand">Tourpass AI 어시스턴트</div>
-      <div class="sub">Google Sheets + OpenAI 백엔드와 연결된 전용 챗봇</div>
-    </header>
+  <div class="container">
+    <h1>📊 2025 투어패스 워크숍 AI 어시스턴트</h1>
+    <p class="sub">일정·예산·제출양식까지 한 번에 검색하세요.</p>
 
-    <main class="main">
-      <h1 class="title">투어패스 워크숍에 대해 궁금하세요?</h1>
+    <!-- 검색창 -->
+    <div class="search-bar">
+      <input id="query" type="text" placeholder="예: 워크숍 일정 알려줘" />
+      <button id="searchBtn">검색</button>
+    </div>
 
-      <div class="askbar" role="search" aria-label="질문 입력창">
-        <input id="q" class="input" placeholder="예) 워크숍 일정 알려줘" autocomplete="off" />
-        <button id="mic" class="btn" title="음성 입력" aria-label="음성 입력">
-          <!-- mic icon -->
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-            <path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3Z" stroke="currentColor" stroke-width="1.5"/>
-            <path d="M19 11a7 7 0 0 1-14 0" stroke="currentColor" stroke-width="1.5"/>
-            <path d="M12 18v3" stroke="currentColor" stroke-width="1.5"/>
-          </svg>
-        </button>
-        <button id="send" class="btn" title="질문 보내기 (Enter)" aria-label="질문 보내기">
-          <div class="wave" aria-hidden><span></span><span></span><span></span></div>
-        </button>
-      </div>
+    <!-- 추천 질문 -->
+    <div class="faq-tags">
+      <button>전체 일정 알려줘</button>
+      <button>예산 항목별 금액</button>
+      <button>결과보고서 양식</button>
+      <button>담당자 누구야?</button>
+      <button>2일차 세부일정</button>
+    </div>
 
-      <p class="hint">Enter 전송 · 마이크 질문 · 백엔드는 Google Apps Script 웹앱으로 연결</p>
+    <!-- 결과 영역 -->
+    <div id="result" class="result">
+      <h2>GPT 분석 결과</h2>
+      <div class="answer" id="answer"></div>
+      <div class="recs" id="recs"></div>
+    </div>
 
-      <section id="result" class="result" aria-live="polite" aria-busy="false">
-        <div class="res-head">
-          <div id="busy" class="loader" hidden></div>
-          <div>GPT 분석 결과</div>
-        </div>
-        <div id="answer" class="answer"></div>
-      </section>
-    </main>
+    <div id="error" class="error"></div>
   </div>
 
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-
   <script>
-    // ====== 1) 연결 설정 (필수) ======
-    // ▶▶ 아래 URL만 본인 GAS 웹앱 exec URL로 교체하세요.
-    const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxM8pNBBnAxRyoIYHO8be82IzlTCPYOcRRjq_aoiTvcyoprVNhfXQx_KsZlVSVGJlhn/exec';
-    // ▶▶ (선택) GAS에 BACKEND_TOKEN을 설정했다면 동일값을 여기에 넣으세요.
-    const BACKEND_TOKEN = '';
+    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxM8pNBBnAxRyoIYHO8be82IzlTCPYOcRRjq_aoiTvcyoprVNhfXQx_KsZlVSVGJlhn/exec";
+    const TOKEN = ""; // 필요 시 입력
 
-    // ====== 2) 엘리먼트 ======
-    const $q = document.getElementById('q');
-    const $send = document.getElementById('send');
-    const $mic = document.getElementById('mic');
-    const $result = document.getElementById('result');
-    const $answer = document.getElementById('answer');
-    const $busy = document.getElementById('busy');
-    const $toast = document.getElementById('toast');
+    const $query = document.getElementById("query");
+    const $btn = document.getElementById("searchBtn");
+    const $result = document.getElementById("result");
+    const $answer = document.getElementById("answer");
+    const $recs = document.getElementById("recs");
+    const $error = document.getElementById("error");
 
-    // ====== 3) 질문 전송 ======
-    async function ask(){
-      const text = $q.value.trim();
-      if(!text){ toast('질문을 입력해주세요.'); return; }
+    async function askGPT() {
+      const text = $query.value.trim();
+      if (!text) return alert("질문을 입력하세요!");
 
-      toggleBusy(true);
-      $result.style.display = 'block';
-      $answer.innerHTML = '';
+      $error.style.display = "none";
+      $result.style.display = "none";
 
       try {
         const res = await fetch(WEBAPP_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query: text, token: BACKEND_TOKEN || undefined })
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: text, token: TOKEN || undefined })
         });
 
-        if(!res.ok) throw new Error('HTTP ' + res.status);
+        if (!res.ok) throw new Error("서버 응답 오류: " + res.status);
+
         const data = await res.json();
-
-        $answer.innerHTML = (typeof data.answer === 'string' && data.answer.trim())
-          ? escapeHtml(data.answer).replace(/\n/g,'<br/>')
-          : '<span style="color:#64748b">응답이 비어 있습니다.</span>';
-
-        // 추천이 오면 리스트로 추가
-        if(Array.isArray(data.recs) && data.recs.length){
-          const list = data.recs.map((r,i)=>`<li>${escapeHtml(r.name)} <small>[${escapeHtml(r.place_id)}] · 점수:${escapeHtml(String(r.score))}</small></li>`).join('');
-          $answer.insertAdjacentHTML('beforeend', `<hr style="margin:12px 0;opacity:.3"><div style="font-weight:700;margin-bottom:6px">다음 가맹점 추천 (Top3)</div><ol style="margin:0;padding-left:18px">${list}</ol>`);
+        $answer.innerHTML = (data.answer || "응답이 없습니다.").replace(/\n/g, "<br>");
+        if (data.recs && data.recs.length) {
+          $recs.innerHTML = "<strong>📍 추천 다음 장소</strong><br>" + 
+            data.recs.map(r => `- ${r.name} (${r.score}회 방문)`).join("<br>");
+        } else {
+          $recs.innerHTML = "";
         }
-      } catch(err){
+
+        $result.style.display = "block";
+      } catch (err) {
         console.error(err);
-        $answer.innerHTML = '<span style="color:#ef4444">오류 발생: 웹앱 URL/권한/키 설정을 확인해주세요.</span>';
-      } finally {
-        toggleBusy(false);
+        $error.textContent = "⚠️ 오류 발생: 서버 연결을 확인하세요.";
+        $error.style.display = "block";
       }
     }
 
-    function toggleBusy(b){
-      $busy.hidden = !b;
-      $result.setAttribute('aria-busy', b ? 'true' : 'false');
-      $send.disabled = b; $q.disabled = b;
-    }
+    $btn.addEventListener("click", askGPT);
+    $query.addEventListener("keydown", e => { if (e.key === "Enter") askGPT(); });
 
-    $send.addEventListener('click', ask);
-    $q.addEventListener('keydown', e=>{ if(e.key==='Enter') ask(); });
-
-    // ====== 4) 음성 입력(Web Speech API) ======
-    let rec;
-    if('webkitSpeechRecognition' in window){
-      rec = new webkitSpeechRecognition();
-      rec.lang = 'ko-KR';
-      rec.interimResults = false;
-      rec.maxAlternatives = 1;
-      rec.onresult = ev => { $q.value = ev.results[0][0].transcript; ask(); };
-      rec.onerror = ()=> toggleMic(false);
-    }
-    function toggleMic(forceOff){
-      if(!rec){ alert('이 브라우저는 음성 인식을 지원하지 않아요.'); return; }
-      const on = $mic.dataset.on === 'true';
-      const next = forceOff ? false : !on;
-      $mic.dataset.on = String(next);
-      if(next) rec.start(); else rec.stop();
-    }
-    $mic.addEventListener('click', ()=> toggleMic());
-
-    // ====== 5) 유틸 ======
-    function escapeHtml(str){
-      return String(str).replace(/[&<>"']/g, s=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[s]));
-    }
-    function toast(msg){
-      $toast.textContent = msg;
-      $toast.style.display = 'block';
-      clearTimeout(window.__toastTimer);
-      window.__toastTimer = setTimeout(()=> $toast.style.display='none', 2000);
-    }
+    document.querySelectorAll(".faq-tags button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        $query.value = btn.textContent;
+        askGPT();
+      });
+    });
   </script>
 </body>
 </html>
