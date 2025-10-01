@@ -1,102 +1,164 @@
 <!doctype html>
 <html lang="ko">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LS TourPass AI Search</title>
-<meta name="backend-url" content="https://script.google.com/macros/s/AKfycbxM8pNBBnAxRyoIYHO8be82IzlTCPYOcRRjq_aoiTvcyoprVNhfXQx_KsZlVSVGJlhn/exec">
-<meta name="backend-token" content="settings의 BACKEND_TOKEN">
-<style>
-  :root{
-    --ink:#0f172a;--muted:#64748b;--line:#e2e8f0;
-    --brand:#1e40af;--bg:#ffffff;--panel:#f8fafc;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,Noto Sans KR,sans-serif;background:var(--bg);color:var(--ink)}
-  .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-  .card{max-width:760px;width:100%;text-align:center}
-  .logo{font-weight:800;font-size:28px;color:var(--brand);letter-spacing:0.3px;margin-bottom:24px}
-  .search{display:flex;gap:8px;align-items:center;justify-content:center}
-  input[type="text"]{flex:1;max-width:640px;padding:16px 18px;border:1px solid var(--line);border-radius:999px;font-size:16px;background:#fff}
-  button{padding:14px 18px;border:none;border-radius:999px;background:var(--brand);color:#fff;font-weight:700;cursor:pointer}
-  .meta{margin-top:16px;color:var(--muted);font-size:13px}
-  .result{margin-top:28px;text-align:left;border:1px solid var(--line);border-radius:16px;background:#fff;padding:18px}
-  .answer{white-space:pre-wrap;line-height:1.55}
-  .badge{display:inline-block;font-size:12px;color:#334155;background:#eef2ff;border:1px solid #e0e7ff;padding:4px 8px;border-radius:999px;margin-right:6px}
-  .skeleton{height:14px;background:#e5e7eb;border-radius:6px;animation:pulse 1.2s infinite}
-  @keyframes pulse{0%{opacity:.6}50%{opacity:.25}100%{opacity:.6}}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LS TourPass • AI Search</title>
+
+  <!-- ↓ 여기 두 개만 네 값으로 바꿔 넣으면 끝 -->
+  <meta name="backend-url" content="https://script.google.com/macros/s/___웹앱ID___/exec" />
+  <meta name="backend-token" content="abc123XYZTOKEN" />
+
+  <style>
+    :root{
+      --ink:#0f172a; --muted:#64748b; --line:#e2e8f0;
+      --brand:#1e40af; --bg:#ffffff; --panel:#f8fafc;
+      --ok:#10b981; --bad:#ef4444;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,Noto Sans KR,sans-serif;background:var(--bg);color:var(--ink)}
+    .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px}
+    .card{max-width:880px;width:100%}
+    .logo{text-align:center;font-weight:800;font-size:28px;color:var(--brand);letter-spacing:.3px;margin-bottom:20px}
+    .search{display:flex;gap:10px;align-items:center;justify-content:center}
+    .search input{flex:1;max-width:680px;height:56px;padding:0 20px;border:1px solid var(--line);border-radius:999px;font-size:16px;outline:none}
+    .search button{height:56px;padding:0 20px;border:none;border-radius:999px;background:var(--brand);color:#fff;font-weight:700;cursor:pointer}
+    .meta{margin-top:10px;color:var(--muted);font-size:13px;text-align:center}
+    .result{margin:22px auto 0;max-width:760px;border:1px solid var(--line);border-radius:16px;background:#fff;padding:18px}
+    .badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+    .badge{display:inline-block;font-size:12px;color:#334155;background:#eef2ff;border:1px solid #e0e7ff;padding:4px 8px;border-radius:999px}
+    .answer{white-space:pre-wrap;line-height:1.6}
+    .error{color:#991b1b;background:#fef2f2;border:1px solid #fee2e2;padding:12px;border-radius:10px}
+    .skeleton{height:14px;background:#e5e7eb;border-radius:6px;animation:pulse 1.2s infinite}
+    @keyframes pulse{0%{opacity:.6}50%{opacity:.25}100%{opacity:.6}}
+  </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="card">
-    <div class="logo">LS TourPass • AI Search</div>
-    <div class="search">
-      <input id="q" type="text" placeholder="무엇이든 물어보세요 (예: 충남투어패스 운영지표 요약)" autofocus />
-      <button id="go">질문하기</button>
-    </div>
-    <div class="meta">프롬프트/모델/비용 정책은 운영 시트에서 제어됩니다.</div>
-    <div id="result" class="result" style="display:none">
-      <div id="badges"></div>
-      <div id="answer" class="answer"></div>
-      <div id="trace" class="meta" style="margin-top:8px"></div>
+  <div class="wrap">
+    <div class="card">
+      <div class="logo">LS TourPass • AI Search</div>
+
+      <div class="search">
+        <input id="q" type="text" placeholder="무엇이든 물어보세요 (예: 충남투어패스 운영지표 요약)" autofocus />
+        <button id="go">질문하기</button>
+      </div>
+      <div class="meta">프롬프트/모델/비용 정책은 운영 시트에서 제어됩니다.</div>
+
+      <div id="result" class="result" style="display:none">
+        <div id="badges" class="badges"></div>
+        <div id="answer" class="answer"></div>
+        <div id="trace" class="meta" style="margin-top:8px"></div>
+      </div>
     </div>
   </div>
-</div>
-<script>
-  const $q = document.getElementById('q');
-  const $go = document.getElementById('go');
-  const $res = document.getElementById('result');
-  const $ans = document.getElementById('answer');
-  const $badges = document.getElementById('badges');
-  const $trace = document.getElementById('trace');
 
-  const BACKEND_URL = document.querySelector('meta[name="backend-url"]').content;
-  const BACKEND_TOKEN = document.querySelector('meta[name="backend-token"]').content;
-  const sessionId = localStorage.getItem('tp_session') || (()=>{ const v=crypto.randomUUID(); localStorage.setItem('tp_session',v); return v; })();
+  <script>
+    // ===== 환경값 =====
+    const BACKEND_URL   = document.querySelector('meta[name="backend-url"]').content.trim();
+    const BACKEND_TOKEN = document.querySelector('meta[name="backend-token"]').content.trim();
 
-  function skeleton() {
-    $res.style.display = 'block';
-    $badges.innerHTML = `<span class="badge">생성 중…</span>`;
-    $ans.innerHTML = `
-      <div class="skeleton" style="width:92%;margin:8px 0;"></div>
-      <div class="skeleton" style="width:88%;margin:8px 0;"></div>
-      <div class="skeleton" style="width:94%;margin:8px 0;"></div>
-      <div class="skeleton" style="width:70%;margin:8px 0;"></div>`;
-    $trace.textContent = '';
-  }
+    // ===== DOM =====
+    const $q = document.getElementById('q');
+    const $go = document.getElementById('go');
+    const $res = document.getElementById('result');
+    const $badges = document.getElementById('badges');
+    const $ans = document.getElementById('answer');
+    const $trace = document.getElementById('trace');
 
-  async function ask() {
-    const question = $q.value.trim();
-    if (!question) return;
-    skeleton();
-    try {
-      const r = await fetch(BACKEND_URL, {
-        method:'POST',
-        headers:{'Content-Type':'application/json','X-Backend-Token': BACKEND_TOKEN},
-        body: JSON.stringify({question, sessionId})
-      });
-      const j = await r.json();
-      if (!j.ok) throw new Error(j.error||'server error');
-      $badges.innerHTML = `
-        <span class="badge">모델: ${j.model||'?'}</span>
-        <span class="badge">지연: ${j.latency_ms??'?'}ms</span>
-        <span class="badge">토큰: ${j.usage_tokens??'?'}</span>
-        <span class="badge">Row #${j.rowId||'?'}</span>`;
-      $ans.textContent = j.answer || '(응답 없음)';
-      $trace.textContent = '※ 이 응답은 Google 스프레드시트에 기록되었습니다.';
-      // 로컬 히스토리
-      const h = JSON.parse(localStorage.getItem('tp_hist')||'[]');
-      h.unshift({t:Date.now(), q:question, a:j.answer});
-      localStorage.setItem('tp_hist', JSON.stringify(h.slice(0,20)));
-    } catch (e) {
+    // 세션 유지(대화 맥락/운영 분석용)
+    const sessionId = (() => {
+      const k = 'tp_session';
+      let v = localStorage.getItem(k);
+      if (!v) { v = self.crypto?.randomUUID?.() || String(Date.now()); localStorage.setItem(k, v); }
+      return v;
+    })();
+
+    function showSkeleton() {
+      $res.style.display = 'block';
+      $badges.innerHTML = `<span class="badge">생성 중…</span>`;
+      $ans.innerHTML = `
+        <div class="skeleton" style="width:90%;margin:8px 0;"></div>
+        <div class="skeleton" style="width:86%;margin:8px 0;"></div>
+        <div class="skeleton" style="width:94%;margin:8px 0;"></div>
+        <div class="skeleton" style="width:70%;margin:8px 0;"></div>`;
+      $trace.textContent = '';
+    }
+
+    function showError(msg) {
+      $res.style.display = 'block';
       $badges.innerHTML = `<span class="badge" style="background:#fee2e2;border-color:#fecaca;color:#991b1b">오류</span>`;
-      $ans.textContent = `요청 실패: ${e.message}`;
+      $ans.innerHTML = `<div class="error">요청 실패: ${msg}</div>`;
       $trace.textContent = '다시 시도하거나, 운영자에게 문의해주세요.';
     }
-  }
-  $go.addEventListener('click', ask);
-  $q.addEventListener('keydown', e => { if (e.key==='Enter') ask(); });
-</script>
+
+    async function ask() {
+      const question = ($q.value || '').trim();
+      if (!question) return;
+
+      // 1) 로딩 UI
+      showSkeleton();
+
+      try {
+        // 2) GAS 웹앱 호출
+        //   - headers에는 ASCII만 사용 (여기선 Content-Type만)
+        //   - 토큰은 body로 전달 (한글/특수문자 OK)
+        const res = await fetch(BACKEND_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            question,
+            sessionId,
+            token: BACKEND_TOKEN
+          })
+        });
+
+        // 네트워크 레벨 오류 처리
+        if (!res.ok) {
+          const txt = await res.text().catch(()=> '');
+          throw new Error(`HTTP ${res.status} ${res.statusText} ${txt?.slice?.(0,180) || ''}`);
+        }
+
+        // 3) JSON 파싱
+        let data;
+        try {
+          data = await res.json();
+        } catch (err) {
+          throw new Error('서버 응답 파싱 실패(JSON 아님)');
+        }
+
+        // 4) 앱 레벨 결과 처리
+        if (!data.ok) throw new Error(data.error || '서버 오류');
+        const { answer, model, latency_ms, usage_tokens, rowId } = data;
+
+        $badges.innerHTML = `
+          <span class="badge">모델: ${model || '?'}</span>
+          <span class="badge">지연: ${latency_ms ?? '?'}ms</span>
+          <span class="badge">토큰: ${usage_tokens ?? '?'}</span>
+          <span class="badge">Row #${rowId || '?'}</span>`;
+
+        $ans.textContent = answer || '(응답 없음)';
+        $trace.textContent = '※ 이 응답은 Google 스프레드시트에 기록되었습니다.';
+
+        // 로컬 히스토리(선택)
+        const histKey = 'tp_hist';
+        const h = JSON.parse(localStorage.getItem(histKey) || '[]');
+        h.unshift({ t: Date.now(), q: question, a: answer });
+        localStorage.setItem(histKey, JSON.stringify(h.slice(0,20)));
+      } catch (e) {
+        showError(e.message || String(e));
+      }
+    }
+
+    $go.addEventListener('click', ask);
+    $q.addEventListener('keydown', e => { if (e.key === 'Enter') ask(); });
+
+    // 디버그 도움: 환경값 미설정 시 경고
+    if (!/^https:\/\/script\.google\.com\/macros\//.test(BACKEND_URL)) {
+      console.warn('backend-url 메타 태그에 GAS 웹앱 URL을 설정하세요.');
+    }
+    if (!BACKEND_TOKEN) {
+      console.warn('backend-token 메타 태그에 운영 토큰을 설정하세요.');
+    }
+  </script>
 </body>
 </html>
