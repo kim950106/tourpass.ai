@@ -5,12 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>2025 투어패스 워크숍 AI 어시스턴트</title>
 
+  <!-- 폰트 & 스타일 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
   <link rel="stylesheet" href="./style.css" />
-  <!-- (선택) 웹앱 토큰을 쓸 경우 이 meta에 채워두면 script.js에서 읽어 사용 -->
+
+  <!-- (선택) 백엔드 토큰: GAS Script Properties에 BACKEND_TOKEN을 썼다면 여기에 동일 값 -->
   <meta name="backend-token" content="">
 </head>
 <body>
@@ -28,16 +29,16 @@
     <!-- 검색바 -->
     <div class="searchbar" role="search">
       <input id="q" class="q" placeholder="예) 전체 일정 알려줘" autocomplete="off" />
-      <button id="go" class="btn-search" aria-label="검색">검색</button>
+      <button id="go" class="btn-search" aria-label="검색" type="button">검색</button>
     </div>
 
     <!-- 추천 프롬프트 -->
-    <div class="chips">
-      <button class="chip" data-q="전체 일정 알려줘">전체 일정 알려줘</button>
-      <button class="chip" data-q="예산 항목별 금액 정리해줘">예산 항목별 금액</button>
-      <button class="chip" data-q="결과보고서 양식 알려줘">결과보고서 양식</button>
-      <button class="chip" data-q="담당자 누구야?">담당자 누구야?</button>
-      <button class="chip" data-q="2일차 세부일정 알려줘">2일차 세부일정</button>
+    <div class="chips" id="chips">
+      <button class="chip" type="button" data-q="전체 일정 알려줘">전체 일정 알려줘</button>
+      <button class="chip" type="button" data-q="2일차 세부일정 알려줘">2일차 세부일정</button>
+      <button class="chip" type="button" data-q="예산 항목별 금액 정리해줘">예산 항목별 금액</button>
+      <button class="chip" type="button" data-q="결과보고서 양식 알려줘">결과보고서 양식</button>
+      <button class="chip" type="button" data-q="담당자 누구야?">담당자 누구야?</button>
     </div>
 
     <!-- 상태/오류 -->
@@ -54,8 +55,8 @@
   </main>
 
   <footer class="site-foot">
-    <button id="ping" class="btn-ping" title="백엔드 연결 점검">연결 점검</button>
-    <span class="foot-hint">· 프론트엔드: GitHub Pages · 백엔드: Google Apps Script</span>
+    <button id="ping" class="btn-ping" type="button" title="백엔드 연결 점검">연결 점검</button>
+    <span class="foot-hint">· 프론트: GitHub Pages · 백엔드: Google Apps Script</span>
   </footer>
 
   <script src="./script.js"></script>
