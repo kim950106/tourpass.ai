@@ -1,116 +1,173 @@
-/* =========================
- * Frontend Controller
- * - GitHub Pages에서 실행
- * - Google Apps Script WebApp으로 POST
- * ========================= */
+/* ============================================
+ * Tourpass 워크숍 검색형 챗봇 - script.js
+ * - Google Apps Script 웹앱(POST /exec)로 질의
+ * - 응답 { answer, recs? } 렌더링
+ * ============================================ */
 
-// ✅ 반드시 본인 GAS 웹앱 URL로 교체하세요
-const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxM8pNBBnAxRyoIYHO8be82IzlTCPYOcRRjq_aoiTvcyoprVNhfXQx_KsZlVSVGJlhn/exec";
+/** 🔗 GAS 웹앱 URL (배포 > 웹앱 > 현재 웹앱 URL) */
+const WEBAPP_URL =
+  "https://script.google.com/macros/s/AKfycbxM8pNBBnAxRyoIYHO8be82IzlTCPYOcRRjq_aoiTvcyoprVNhfXQx_KsZlVSVGJlhn/exec";
 
-// (선택) meta[name=backend-token] 에 값이 있으면 함께 보냅니다.
-function getBackendToken() {
-  const m = document.querySelector('meta[name="backend-token"]');
-  return (m && m.content) ? m.content : "";
-}
+/** (옵션) 서버 토큰을 쓰는 경우 스크립트 속성 BACKEND_TOKEN과 동일하게 */
+const BACKEND_TOKEN = ""; // 예: 'my-secret-token'
 
-const $q = document.getElementById("q");
-const $go = document.getElementById("go");
-const $chips = document.querySelectorAll(".chip");
-const $alert = document.getElementById("alert");
+/* ---------- DOM 요소 ---------- */
+const $q = document.getElementById("query");
 const $result = document.getElementById("result");
-const $spinner = document.getElementById("spinner");
-const $answer = document.getElementById("answer");
-const $ping = document.getElementById("ping");
+const $searchBtn = document.getElementById("searchBtn"); // 버튼 id가 있으면 상태 제어
+const $errorBar = document.getElementById("errorBar"); // 에러 표시용(있으면 사용)
 
-// UX: 로딩 토글
-function busy(on) {
-  $spinner.hidden = !on;
-  $result.setAttribute("aria-busy", on ? "true" : "false");
-  $go.disabled = on; $q.disabled = on;
-}
-
-// 알림 표시
-function showAlert(msg) {
-  $alert.textContent = msg;
-  $alert.hidden = !msg;
-}
-
-// HTML escape
-function escapeHtml(str){
-  return String(str).replace(/[&<>"']/g, s=>({
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+/* ---------- 유틸 ---------- */
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, (s) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
   })[s]);
 }
 
-// 결과 렌더
-function showAnswer(text, recs){
-  $result.hidden = false;
-  let html = escapeHtml(text || "응답이 없습니다.").replace(/\n/g,'<br/>');
-  if (Array.isArray(recs) && recs.length) {
-    const list = recs.map(r=>`<li>${escapeHtml(r.name)} <small>[${escapeHtml(r.place_id)}] · 점수:${escapeHtml(String(r.score))}</small></li>`).join("");
-    html += `<hr style="margin:12px 0; opacity:.3;"><div style="font-weight:700; margin-bottom:6px;">다음 가맹점 추천</div><ol style="margin:0; padding-left:18px">${list}</ol>`;
+function setLoading(on) {
+  if ($searchBtn) {
+    $searchBtn.disabled = on;
+    $searchBtn.classList.toggle("is-loading", on);
+    $searchBtn.textContent = on ? "검색 중…" : "검색";
   }
-  $answer.innerHTML = html;
+  if ($q) $q.disabled = on;
 }
 
-// 메인 호출
-async function ask() {
-  const text = $q.value.trim();
-  if (!text) { $q.focus(); return; }
-  showAlert("");
-  $result.hidden = false;
-  busy(true);
+function showError(msg) {
+  console.error(msg);
+  if ($errorBar) {
+    $errorBar.textContent = msg;
+    $errorBar.style.display = "block";
+  } else {
+    // 결과 영역에 에러 렌더
+    $result.innerHTML =
+      `<div class="error">⚠️ ${escapeHtml(msg)}</div>`;
+  }
+}
+
+function clearError() {
+  if ($errorBar) {
+    $errorBar.textContent = "";
+    $errorBar.style.display = "none";
+  }
+}
+
+/* ---------- 렌더 ---------- */
+function renderAnswer(data) {
+  const { answer, recs } = data || {};
+
+  let html = "";
+  if (answer && String(answer).trim()) {
+    html += `
+      <div class="card">
+        <div class="card-title">GPT 분석 결과</div>
+        <div class="card-body">${escapeHtml(answer).replace(/\n/g, "<br/>")}</div>
+      </div>
+    `;
+  } else {
+    html += `
+      <div class="card">
+        <div class="card-title">GPT 분석 결과</div>
+        <div class="card-body muted">응답이 비어 있습니다.</div>
+      </div>
+    `;
+  }
+
+  if (Array.isArray(recs) && recs.length) {
+    const items = recs
+      .map(
+        (r, i) => `
+        <li>
+          <strong>${escapeHtml(r.name || "-")}</strong>
+          <small>(${escapeHtml(r.place_id || "")})</small>
+          <span class="chip">점수: ${escapeHtml(String(r.score ?? ""))}</span>
+        </li>`
+      )
+      .join("");
+    html += `
+      <div class="card">
+        <div class="card-title">다음 가맹점 추천 Top${recs.length}</div>
+        <div class="card-body">
+          <ol class="list">${items}</ol>
+        </div>
+      </div>
+    `;
+  }
+
+  $result.innerHTML = html;
+}
+
+/* ---------- 액션 ---------- */
+async function askChat() {
+  clearError();
+  const query = ($q?.value || "").trim();
+  if (!query) {
+    showError("질문을 입력해 주세요.");
+    return;
+  }
+
+  setLoading(true);
+  $result.innerHTML = ""; // 이전 결과 초기화
 
   try {
     const res = await fetch(WEBAPP_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      // last_place_id는 필요 시 함께 전달하세요.
       body: JSON.stringify({
-        query: text,
-        token: getBackendToken() || undefined
-      })
+        query,
+        token: BACKEND_TOKEN || undefined,
+      }),
+      // CORS는 기본 허용이지만, GitHub Pages(HTTPS)에서 호출하세요.
     });
 
-    // GAS에서 JSON 반환 필수
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    const data = await res.json();
-
-    if (data.error) {
-      showAlert("❌ 서버 오류: " + data.error);
-      showAnswer("");
-      return;
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      throw new Error(`서버 오류 ${res.status} - ${text || "응답 본문 없음"}`);
     }
-    showAnswer(data.answer, data.recs);
+
+    const data = await res.json();
+    renderAnswer(data);
   } catch (err) {
-    console.error(err);
-    showAlert("❌ 오류 발생: 서버 연결을 확인하세요.");
-    showAnswer("");
+    showError(`오류 발생: ${err.message || err}`);
   } finally {
-    busy(false);
+    setLoading(false);
   }
 }
 
-// 이벤트
-$go.addEventListener("click", ask);
-$q.addEventListener("keydown", (e)=>{ if (e.key === "Enter") ask(); });
-$chips.forEach(btn => btn.addEventListener("click", ()=>{
-  $q.value = btn.dataset.q || "";
-  $q.focus();
-}));
+/* 추천 질문 버튼이 data-ask 속성을 갖고 있으면 자동 바인딩 */
+function bindQuickAsk() {
+  document.querySelectorAll("[data-ask]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const text = btn.getAttribute("data-ask") || "";
+      if ($q) $q.value = text;
+      askChat();
+    });
+  });
+}
 
-// 헬스 체크(옵션)
-$ping.addEventListener("click", async ()=>{
-  showAlert("");
-  try {
-    // doGet이 'OK'를 반환하면 성공
-    const res = await fetch(WEBAPP_URL, { method: "GET" });
-    const text = await res.text();
-    if (text && text.toUpperCase().includes("OK")) {
-      showAlert("✅ 백엔드 연결 정상입니다.");
-    } else {
-      showAlert("⚠️ 백엔드 응답이 비정상입니다: " + text.slice(0,120));
-    }
-  } catch (e) {
-    showAlert("❌ 연결 실패: " + e.message);
-  }
-});
+/* 외부에서 호출할 수 있게 window로 노출(HTML onclick 대비) */
+window.askChat = askChat;
+window.quickAsk = function (text) {
+  if ($q) $q.value = text || "";
+  askChat();
+};
+
+/* 엔터키 검색 */
+if ($q) {
+  $q.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") askChat();
+  });
+}
+
+/* 버튼 id가 있으면 클릭 바인딩 */
+if ($searchBtn) {
+  $searchBtn.addEventListener("click", askChat);
+}
+
+/* 페이지 로드 시 추천 버튼 바인딩 */
+document.addEventListener("DOMContentLoaded", bindQuickAsk);
