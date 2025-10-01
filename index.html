@@ -25,17 +25,17 @@
   <main class="shell">
     <!-- 검색바 -->
     <div class="searchbar" role="search">
-      <input id="q" class="q" placeholder="예) 전체 일정 알려줘" autocomplete="off" />
-      <button id="go" class="btn-search" aria-label="검색">검색</button>
+      <input id="q" class="q" type="text" placeholder="예) 전체 일정 알려줘" autocomplete="off" spellcheck="false" />
+      <button id="go" class="btn-search" type="button" aria-label="검색">검색</button>
     </div>
 
     <!-- 추천 프롬프트 -->
-    <div class="chips">
-      <button class="chip" data-q="전체 일정 알려줘">전체 일정 알려줘</button>
-      <button class="chip" data-q="예산 항목별 금액 정리해줘">예산 항목별 금액</button>
-      <button class="chip" data-q="결과보고서 양식 알려줘">결과보고서 양식</button>
-      <button class="chip" data-q="담당자 누구야?">담당자 누구야?</button>
-      <button class="chip" data-q="2일차 세부일정 알려줘">2일차 세부일정</button>
+    <div class="chips" id="chips">
+      <button class="chip" type="button" data-q="전체 일정 알려줘">전체 일정 알려줘</button>
+      <button class="chip" type="button" data-q="예산 항목별 금액 정리해줘">예산 항목별 금액</button>
+      <button class="chip" type="button" data-q="결과보고서 양식 알려줘">결과보고서 양식</button>
+      <button class="chip" type="button" data-q="담당자 누구야?">담당자 누구야?</button>
+      <button class="chip" type="button" data-q="2일차 세부일정 알려줘">2일차 세부일정</button>
     </div>
 
     <!-- 상태/오류 -->
@@ -52,7 +52,7 @@
   </main>
 
   <footer class="site-foot">
-    <button id="ping" class="btn-ping" title="백엔드 연결 점검">연결 점검</button>
+    <button id="ping" class="btn-ping" type="button" title="백엔드 연결 점검">연결 점검</button>
     <span class="foot-hint">· 프론트엔드: GitHub Pages · 백엔드: Google Apps Script</span>
   </footer>
 
